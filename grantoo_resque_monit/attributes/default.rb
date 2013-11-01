@@ -1,4 +1,5 @@
-include_attribute 'opsworks_initial_setup::default'
+include_attribute 'deploy'
+include_attribute 'opsworks_commons::default'
 
 case node[:platform]
 when 'centos','redhat','fedora','suse','amazon'
