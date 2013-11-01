@@ -1,0 +1,7 @@
+# check process
+check process resque_worker
+  with pidfile "<%= node[:grantoo_resque][:shared_dir] %>/pid/grantoo_resque.pid"
+  start program = "/usr/bin/env HOME=/home/user PATH=/usr/local/bin:/usr/bin:/bin:$PATH /bin/sh -l -c 'cd <%= @application[:deploy_to]%>/current; nohup bundle exec rake environment resque:work RAILS_ENV=<%= deploy[:rails_env] %> QUEUE=* VERBOSE=1 PIDFILE="<%= node[:grantoo_resque][:shared_dir] %>/pid/grantoo_resque.pid" >> log/resque_worker.log 2>&1'" as uid deploy and gid deploy
+  stop program = "/bin/sh -c 'cd <%= @application[:deploy_to]%>/current && kill -9 $(cat "<%= node[:grantoo_resque][:shared_dir] %>/pid/grantoo_resque.pid") && rm -f "<%= node[:grantoo_resque][:shared_dir] %>/pid/grantoo_resque.pid"; exit 0;'"
+  if totalmem is greater than 500 MB for 10 cycles then restart # eating up memory?
+  group resque_workers
