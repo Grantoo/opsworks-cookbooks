@@ -9,24 +9,6 @@ end
 
 include_recipe "grantoo_resque_monit::service"
 
-if platform?('debian','ubuntu')
-  template "/etc/default/monit" do
-    source "monit.erb"
-    mode 0644
-  end
-end
-
-service 'monit' do
-  action :stop
-end
-
-template node[:monit][:conf] do
-  source "monitrc.erb"
-  mode 0600
-  #TODO: This should only happen if the service is running, after rebooting
-#  notifies :restart, resources(:service => "monit")
-end
-
 template File.join(node[:monit][:conf_dir], "grantoo_resque.monitrc") do
   source "grantoo_resque.monitrc.erb"
   mode 0644
@@ -34,8 +16,3 @@ template File.join(node[:monit][:conf_dir], "grantoo_resque.monitrc") do
 #  notifies :restart, resources(:service => "monit")
 end
 
-if platform?('centos','redhat','fedora','amazon')
-  file File.join(node[:monit][:conf_dir], 'logging') do
-    action :delete
-  end
-end
