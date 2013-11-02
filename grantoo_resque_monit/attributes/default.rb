@@ -1,10 +1,4 @@
-include_attribute 'deploy::deploy'
-include_attribute 'opsworks_commons::default'
-
-#default[:deploy] = {}
-#node[:deploy].each do |application, deploy|
-#  default[:deploy][application][:deploy_to] = "/srv/www/#{application}"
-#end
+include_attribute 'rails::rails'
 
 case node[:platform]
 when 'centos','redhat','fedora','suse','amazon'

@@ -1,6 +1,6 @@
 check process resque_worker
-  with pidfile "<%= @deploy[:deploy_to] %>/shared/pids/grantoo_resque.pid"
-  start program = "/usr/bin/env HOME=/home/user PATH=/usr/local/bin:/usr/bin:/bin:$PATH /bin/sh -l -c 'cd <%= @deploy[:deploy_to] %>/current; nohup bundle exec rake environment resque:work RAILS_ENV=<%= @deploy[:rails_env] %> QUEUE=* VERBOSE=1 PIDFILE=<%= @deploy[:deploy_to] %>/shared/pids/grantoo_resque.pid >><%= @deploy[:deploy_to] %>/shared/log/resque_worker.log 2>&1'" as uid deploy and gid deploy
-  stop program = "/bin/sh -c 'cd <%= @deploy[:deploy_to] %>/current && kill -9 $(cat "<%= @deploy[:deploy_to] %>/shared/pids/grantoo_resque.pid") && rm -f "<%= @deploy[:deploy_to] %>/shared/pids/grantoo_resque.pid"; exit 0;'"
+  with pidfile "<%= @application[:deploy_to] %>/shared/pids/grantoo_resque.pid"
+  start program = "/usr/bin/env HOME=/home/user PATH=/usr/local/bin:/usr/bin:/bin:$PATH /bin/sh -l -c 'cd <%= @application[:deploy_to] %>/current; nohup bundle exec rake environment resque:work RAILS_ENV=<%= @application[:rails_env] %> QUEUE=* VERBOSE=1 PIDFILE=<%= @application[:deploy_to] %>/shared/pids/grantoo_resque.pid >><%= @application[:deploy_to] %>/shared/log/resque_worker.log 2>&1'" as uid deploy and gid deploy
+  stop program = "/bin/sh -c 'cd <%= @application[:deploy_to] %>/current && kill -9 $(cat "<%= @application[:deploy_to] %>/shared/pids/grantoo_resque.pid") && rm -f "<%= @application[:deploy_to] %>/shared/pids/grantoo_resque.pid"; exit 0;'"
   if totalmem is greater than 500 MB for 10 cycles then restart # eating up memory?
   group resque_workers
