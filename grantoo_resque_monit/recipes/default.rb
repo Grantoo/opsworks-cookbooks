@@ -8,7 +8,10 @@ directory node[:monit][:conf_dir] do
   recursive true
 end
 
-include_recipe "grantoo_resque_monit::service"
+service "monit" do
+  supports :status => false, :restart => true, :reload => true, :start => true
+  action [:enable, :nothing]
+end
 
 node[:deploy].each do |application, deploy|
   template File.join(node[:monit][:conf_dir], "grantoo_resque.monitrc") do
@@ -18,7 +21,6 @@ node[:deploy].each do |application, deploy|
         :application => application,
         :deploy => deploy
     )
-    #TODO: This should only happen if the service is running, after rebooting
-    #notifies :restart, resources(:service => "monit")
+    notifies :restart, resources(:service => "monit")
   end
 end
