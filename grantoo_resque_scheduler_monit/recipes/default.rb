@@ -26,8 +26,7 @@ node[:deploy].each do |application, deploy|
     variables(
         :application => application,
         :deploy => deploy,
-        :group => group,
-    )
+        :group => group )
     notifies :restart, resources(:service => "monit"), :delayed
   end
 
