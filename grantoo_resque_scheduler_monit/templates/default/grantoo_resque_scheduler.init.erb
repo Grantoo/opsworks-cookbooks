@@ -35,11 +35,11 @@ start() {
     if test -f $ROOT/current/Gemfile.lock ; then
         log_daemon_msg "starting with bundler"
         program="$BUNDLER"
-        options="exec rake $TASK RAILS_ENV=$ENVIRONMENT"
+        options="exec rake $TASK RAILS_ENV=$ENVIRONMENT RUBY_GC_MALLOC_LIMIT=50000000"
     else
         log_daemon_msg "starting with rake"
         program="$RAKE"
-        options="$options RACK_ENV=$ENVIRONMENT $TASK"
+        options="$options RACK_ENV=$ENVIRONMENT $TASK RUBY_GC_MALLOC_LIMIT=50000000"
     fi
 
     pidfile=$(printf "$PIDFILE")

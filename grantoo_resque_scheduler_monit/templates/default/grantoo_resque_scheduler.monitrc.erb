@@ -1,5 +1,5 @@
 check process resque-scheduler_<%= @application %>
   with pidfile "<%= @deploy[:deploy_to] %>/shared/pids/grantoo_resque_scheduler.pid"
   start program = "/etc/init.d/grantoo_resque_scheduler.init start" with timeout 120 seconds
-  stop program = "/etc/init.d/grantoo_resque_scheduler.init stop"
+  stop program = "/etc/init.d/grantoo_resque_scheduler.init stop" with timeout 60 seconds
   if 5 restarts within 5 cycles then timeout
