@@ -1,0 +1,98 @@
+#!/bin/sh -e
+### BEGIN INIT INFO
+# Provides:		resque
+# Required-Start:	$local_fs $remote_fs
+# Required-Stop:	$local_fs $remote_fs
+# Should-Start:		$local_fs
+# Should-Stop:		$local_fs
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	resque - a Redis-backed Ruby library for creating background jobs
+# Description:		resque - a Redis-backed Ruby library for creating background jobs, placing those jobs on multiple queues, and processing them later.
+### END INIT INFO
+
+set -e
+
+. /lib/lsb/init-functions
+
+NAME=<%= @application %>
+ROOT="<%= @deploy[:deploy_to] %>"
+USER="deploy"
+GROUP="<%= @group %>"
+ENVIRONMENT="<%= @deploy[:rails_env] %>"
+COUNT=1
+PATH=/usr/local/bin:/usr/bin:/bin:$PATH
+
+BUNDLER="/usr/local/bin/bundle"
+RAKE="/usr/local/bin/rake"
+TASK="resque:scheduler"
+PIDFILE="$ROOT/shared/pids/resque_scheduler.%d.pid"
+
+start() {
+    local program
+    local options
+
+    if test -f $ROOT/current/Gemfile.lock ; then
+        log_daemon_msg "starting with bundler"
+        program="$BUNDLER"
+        options="exec rake $TASK RAILS_ENV=$ENVIRONMENT"
+    else
+        log_daemon_msg "starting with rake"
+        program="$RAKE"
+        options="$options RACK_ENV=$ENVIRONMENT $TASK"
+    fi
+
+    for i in $(seq 1 $COUNT); do
+        pidfile=$(printf "$PIDFILE" $i)
+
+        log_daemon_msg "starting in $ROOT/current"
+
+        if start-stop-daemon --start --background --quiet --pidfile $pidfile --chdir $ROOT/current --chuid $USER:$GROUP --exec $program -- $options PIDFILE=$pidfile
+        then
+            log_daemon_msg "Starting scheduler #$i for $NAME ..."
+        else
+            log_failure_msg "Failed to start scheduler #$i for $NAME!"
+        fi
+    done
+}
+
+stop() {
+    local pidfile
+
+    for i in $(seq 1 $COUNT); do
+        pidfile=$(printf "$PIDFILE" $i)
+
+        if start-stop-daemon --stop --quiet --oknodo --pidfile $pidfile
+        then
+            log_daemon_msg "Stopped Resque scheduler #$i for $NAME"
+            rm -f $pidfile
+        else
+            log_failure_msg "Failed to stop Resque scheduler #$i for $NAME!" >&2
+        fi
+    done
+}
+
+status() {
+    local pidfile
+
+    for i in $(seq 1 $COUNT); do
+        pidfile=$(printf "$PIDFILE" $i)
+
+        status_of_proc -p $pidfile "rake $TASK" "$NAME scheduler #$i"
+    done
+}
+
+case "$1" in
+    start)	start ;;
+    stop)	stop ;;
+    restart|force-reload)
+        stop
+        sleep 1
+        start
+        ;;
+    status) status ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|force-reload|status}" >&2
+        exit 1
+        ;;
+esac
