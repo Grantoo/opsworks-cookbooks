@@ -26,7 +26,7 @@ PATH=/usr/local/bin:/usr/bin:/bin:$PATH
 BUNDLER="/usr/local/bin/bundle"
 RAKE="/usr/local/bin/rake"
 TASK="resque:scheduler"
-PIDFILE="$ROOT/shared/pids/resque_scheduler.%d.pid"
+PIDFILE="$ROOT/shared/pids/grantoo_resque_scheduler.pid"
 
 start() {
     local program
@@ -42,44 +42,38 @@ start() {
         options="$options RACK_ENV=$ENVIRONMENT $TASK"
     fi
 
-    for i in $(seq 1 $COUNT); do
-        pidfile=$(printf "$PIDFILE" $i)
+    pidfile=$(printf "$PIDFILE")
 
-        log_daemon_msg "starting in $ROOT/current"
+    log_daemon_msg "starting in $ROOT/current"
 
-        if start-stop-daemon --start --background --quiet --pidfile $pidfile --chdir $ROOT/current --chuid $USER:$GROUP --exec $program -- $options PIDFILE=$pidfile
-        then
-            log_daemon_msg "Starting scheduler #$i for $NAME ..."
-        else
-            log_failure_msg "Failed to start scheduler #$i for $NAME!"
-        fi
-    done
+    if start-stop-daemon --start --background --quiet --pidfile $pidfile --chdir $ROOT/current --chuid $USER:$GROUP --exec $program -- $options PIDFILE=$pidfile
+    then
+        log_daemon_msg "Starting scheduler for $NAME ..."
+    else
+        log_failure_msg "Failed to start scheduler for $NAME!"
+    fi
 }
 
 stop() {
     local pidfile
 
-    for i in $(seq 1 $COUNT); do
-        pidfile=$(printf "$PIDFILE" $i)
+    pidfile=$(printf "$PIDFILE")
 
-        if start-stop-daemon --stop --quiet --oknodo --pidfile $pidfile
-        then
-            log_daemon_msg "Stopped Resque scheduler #$i for $NAME"
-            rm -f $pidfile
-        else
-            log_failure_msg "Failed to stop Resque scheduler #$i for $NAME!" >&2
-        fi
-    done
+    if start-stop-daemon --stop --quiet --oknodo --pidfile $pidfile
+    then
+        log_daemon_msg "Stopped Resque scheduler for $NAME"
+        rm -f $pidfile
+    else
+        log_failure_msg "Failed to stop Resque scheduler for $NAME!" >&2
+    fi
 }
 
 status() {
     local pidfile
 
-    for i in $(seq 1 $COUNT); do
-        pidfile=$(printf "$PIDFILE" $i)
+    pidfile=$(printf "$PIDFILE")
 
-        status_of_proc -p $pidfile "rake $TASK" "$NAME scheduler #$i"
-    done
+    status_of_proc -p $pidfile "rake $TASK" "$NAME scheduler"
 }
 
 case "$1" in
