@@ -19,6 +19,18 @@ node[:deploy].each do |application, deploy|
   Dir.glob(File.join(node[:monit][:conf_dir], "grantoo_resque_scheduler.monitrc")).each do |f|
     File.delete(f)
   end
+  Dir.glob(File.join(node[:etc][:init_dir], "grantoo_resque_scheduler.init")).each do |f|
+    File.delete(f)
+  end
+
+  template File.join(node[:etc][:init_dir], "grantoo_resque_scheduler.init") do
+    source "grantoo_resque_scheduler.init.erb"
+    mode 0755
+    variables(
+        :application => application,
+        :deploy => deploy,
+        :group => group )
+  end
 
   template File.join(node[:monit][:conf_dir], "grantoo_resque_scheduler.monitrc") do
     source "grantoo_resque.monitrc.erb"
