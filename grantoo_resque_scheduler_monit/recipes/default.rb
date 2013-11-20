@@ -33,7 +33,7 @@ node[:deploy].each do |application, deploy|
   end
 
   template File.join(node[:monit][:conf_dir], "grantoo_resque_scheduler.monitrc") do
-    source "grantoo_resque.monitrc.erb"
+    source "grantoo_resque_scheduler.monitrc.erb"
     mode 0644
     variables(
         :application => application,
