@@ -1,5 +1,7 @@
 include_attribute 'rails::rails'
 
+default[:etc][:init_dir] = '/etc/init.d'
+
 case node[:platform]
   when 'centos', 'redhat', 'fedora', 'suse', 'amazon'
     default[:monit][:conf] = '/etc/monit.conf'
