@@ -18,5 +18,6 @@ vendor
 .yardoc
 _yardoc
 doc/
+/.project
 /Gemfile.lock
 build
