@@ -1,9 +1,9 @@
-Chef::Log.info "grantoo_resque_monit::kill: pkill -QUIT -f resque"
-Chef::Log.info `pkill -QUIT -f resque`
+cpu_count = `cat /proc/cpuinfo | grep processor | wc -l`.to_i # assume linux
+Chef::Log.info "grantoo_resque_monit::kill starting with cpu_count #{cpu_count}"
 
-node[:deploy].each do |application, deploy|
-  Dir.glob(File.join(deploy[:deploy_to], "shared/pids/grantoo_resque_*.pid")).each do |f|
-    Chef::Log.info("deleting #{f}")
-    File.delete(f)
-  end
+(1..cpu_count).each do | cpu_number |
+  Chef::Log.info "grantoo_resque_monit::kill stopping resque_worker_#{cpu_number}"
+  `monit stop resque_worker_#{cpu_number}`
 end
+
+Chef::Log.info "grantoo_resque_monit::kill done"
