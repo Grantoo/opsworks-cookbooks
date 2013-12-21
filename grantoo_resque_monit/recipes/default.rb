@@ -35,5 +35,12 @@ node[:deploy].each do |application, deploy|
       notifies :restart, resources(:service => "monit"), :delayed
     end
   end
+end
 
+bash "restart monit resque workers" do
+  user "root"
+  cwd "/tmp"
+  code <<-EOH
+  monit restart all
+  EOH
 end
