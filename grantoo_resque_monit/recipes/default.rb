@@ -35,21 +35,23 @@ node[:deploy].each do |application, deploy|
       notifies :restart, resources(:service => "monit"), :delayed
     end
 
-    bash "restart monit resque workers" do
+    bash "stop resque workers" do
       user "root"
       cwd "/tmp"
       code <<-EOH
       pkill -QUIT -f resque
       rm -f '<%= @deploy[:deploy_to] %>/shared/pids/grantoo_resque_<%= @worker %>.pid'
+      true
       EOH
     end
   end
 end
 
-bash "restart monit resque workers" do
+bash "start monit resque workers" do
   user "root"
   cwd "/tmp"
   code <<-EOH
   monit validate
+  true
   EOH
 end
