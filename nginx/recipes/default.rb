@@ -40,6 +40,13 @@ end
   end
 end
 
+#ensure that the these directories are emptied before used
+%w{conf.d}.each do |dir|
+  Dir.glob(File.join(node[:nginx][:dir], dir)).each do |f|
+    File.delete(f)
+  end
+end
+
 %w{nxensite nxdissite}.each do |nxscript|
   template "/usr/sbin/#{nxscript}" do
     source "#{nxscript}.erb"
