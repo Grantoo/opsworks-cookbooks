@@ -1,9 +1,9 @@
 #ensure that the these directories are emptied before used
-%w{conf.d}.each do |dir|
-  Dir.glob(File.join(node[:nginx][:dir], dir, "*.conf")).each do |f|
-    File.delete(f)
-  end
+Dir.glob(File.join(node[:nginx][:dir], 'conf.d', "*.conf")).each do |f|
+  File.delete(f)
 end
+
+include_recipe "nginx::service"
 
 service "nginx" do
   action :restart
