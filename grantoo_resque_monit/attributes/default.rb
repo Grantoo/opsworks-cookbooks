@@ -11,4 +11,3 @@ case node[:platform]
     default[:monit][:user_group] = 'www-data'
 end
 default[:queues] = "*"
-default[:queues] = node[:resque][:queues] if node[:resque]
