@@ -31,7 +31,7 @@ node[:deploy].each do |application, deploy|
           :deploy => deploy,
           :group => group,
           :worker => cpu_number.to_s,
-          :queues => node[:queues]
+          :queues => node[:resque][:queues]
       )
       notifies :restart, resources(:service => "monit"), :delayed
     end

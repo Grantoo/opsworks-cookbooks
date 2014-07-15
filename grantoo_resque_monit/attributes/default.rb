@@ -10,4 +10,5 @@ case node[:platform]
     default[:monit][:conf_dir] = '/etc/monit/conf.d'
     default[:monit][:user_group] = 'www-data'
 end
-default[:queues] = "*"
+
+default[:resque][:queues] = "*" unless node[:resque][:queues]
