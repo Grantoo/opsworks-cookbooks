@@ -6,3 +6,4 @@ check process resque_worker_<%= @worker %>
   if 10 restarts within 10 cycles then timeout
   group resque_workers
 
+# <%= default[:resque][:queues] %>
