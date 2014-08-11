@@ -16,7 +16,7 @@ end
 group = node[:monit][:user_group]
 cpu_count = `cat /proc/cpuinfo | grep processor | wc -l`.to_i # assume linux
 
-if  !node[:opsworks][:instance].nil? && !node[:opsworks][:instance][:layers].nil? && !node[:resque][:layers].nil
+if  !node[:opsworks][:instance].nil? && !node[:opsworks][:instance][:layers].nil? && !node[:resque][:layers].nil?
   # scan for matching layer
   node[:resque][:layers].each do |layer|
     if node[:opsworks][:instance][:layers].include?(layer[:name])
