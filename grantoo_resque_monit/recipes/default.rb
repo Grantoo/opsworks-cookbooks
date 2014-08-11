@@ -16,15 +16,15 @@ end
 group = node[:monit][:user_group]
 cpu_count = `cat /proc/cpuinfo | grep processor | wc -l`.to_i # assume linux
 
+# example settings: {"resque":{"queues": "*", "layers": [{"name": "railsworkerspriority", "queues": "my_special_queue"}]}}
+queues = node[:resque][:queues]
 if  !node[:opsworks][:instance].nil? && !node[:opsworks][:instance][:layers].nil? && !node[:resque][:layers].nil?
   # scan for matching layer
   node[:resque][:layers].each do |layer|
     if node[:opsworks][:instance][:layers].include?(layer[:name])
-      @queues = layer[:queues]
+      queues = layer[:queues]
     end
   end
-else
-  @queues = node[:resque][:queues]
 end
 
 node[:deploy].each do |application, deploy|
@@ -42,7 +42,7 @@ node[:deploy].each do |application, deploy|
           :deploy => deploy,
           :group => group,
           :worker => cpu_number.to_s,
-          :queues => @queues
+          :queues => queues
       )
       notifies :restart, resources(:service => "monit"), :delayed
     end
