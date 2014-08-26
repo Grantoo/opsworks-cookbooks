@@ -27,6 +27,18 @@ if  !node[:opsworks][:instance].nil? && !node[:opsworks][:instance][:layers].nil
   end
 end
 
+bash "kill resque workers" do
+  user "root"
+  cwd "/tmp"
+  code <<-EOH
+      pkill -QUIT -e -f resque-1.25
+      rm -f '<%= @deploy[:deploy_to] %>/shared/pids/grantoo_resque_<%= @worker %>.pid'
+      true
+  EOH
+end
+
+sleep(5.0)
+
 node[:deploy].each do |application, deploy|
   Dir.glob(File.join(node[:monit][:conf_dir], "grantoo_resque*.monitrc")).each do |f|
     File.delete(f)
@@ -44,26 +56,18 @@ node[:deploy].each do |application, deploy|
           :worker => cpu_number.to_s,
           :queues => queues
       )
-      notifies :restart, resources(:service => "monit"), :delayed
-    end
-
-    bash "stop resque workers" do
-      user "root"
-      cwd "/tmp"
-      code <<-EOH
-      pkill -QUIT -f resque
-      rm -f '<%= @deploy[:deploy_to] %>/shared/pids/grantoo_resque_<%= @worker %>.pid'
-      true
-      EOH
+      notifies :restart, resources(:service => "monit"), :immediately
     end
   end
 end
 
-bash "start monit resque workers" do
+sleep(10.0)
+
+bash "restart resque workers" do
   user "root"
   cwd "/tmp"
   code <<-EOH
-  monit validate
-  true
+      monit restart -g resque_workers
+      true
   EOH
 end
