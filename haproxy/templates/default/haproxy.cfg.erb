@@ -160,7 +160,10 @@ backend java_servers_ssl
 
 frontend http-in
   bind :80
-  
+
+  acl req_api_path path_beg /api/
+  acl req_sdk_path path_beg /sdk/
+
   # all domains of Rails applications
   <% node[:haproxy][:rails_applications].each do |app_name, app_config| -%>
     <% app_config['domains'].each do |domain| -%>
@@ -203,6 +206,10 @@ frontend http-in
   
   # choose backend
   <% unless node[:haproxy][:static_applications].empty? || node[:haproxy][:static_backends].empty? -%>
+
+    use_backend rails_app_servers if req_api_path
+    use_backend rails_app_servers if req_sdk_path
+
     <% node[:haproxy][:static_applications].each do |app_name, app_config| -%>
       <% app_config['domains'].each do |domain| -%>
         <% if app_config['mounted_at'] -%>
@@ -265,7 +272,10 @@ frontend http-in
 frontend https-in
   mode tcp
   bind :443
-  
+
+  acl req_api_path path_beg /api/
+  acl req_sdk_path path_beg /sdk/
+
   # all domains of Rails applications
   <% node[:haproxy][:rails_applications].each do |app_name, app_config| -%>
     <% app_config['domains'].each do |domain| -%>
@@ -293,6 +303,9 @@ frontend https-in
   acl static_applications_ssl hdr_end(host) -i <%= domain %>
     <% end -%>
   <% end -%>
+
+  use_backend rails_app_servers_ssl if req_api_path
+  use_backend rails_app_servers_ssl if req_sdk_path
 
   <% unless node[:haproxy][:rails_applications].empty? || node[:haproxy][:rails_backends].empty? -%>
   use_backend rails_app_servers_ssl if rails_applications_ssl
