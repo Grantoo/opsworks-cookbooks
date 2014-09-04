@@ -32,16 +32,17 @@ node[:deploy].each do |application, deploy|
     File.delete(f)
   end
 
-  (1..cpu_count).each do | cpu_number |
-    Chef::Log.info("cpu_number #{cpu_number.to_s}")
-    template File.join(node[:monit][:conf_dir], "grantoo_resque_#{cpu_number.to_s}.monitrc") do
+  worker_count = cpu_count * 2
+  (1..worker_count).each do | worker_number |
+    Chef::Log.info("worker_number #{worker_number.to_s}")
+    template File.join(node[:monit][:conf_dir], "grantoo_resque_#{worker_number.to_s}.monitrc") do
       mode 0700
       source "grantoo_resque.monitrc.erb"
       variables(
           :application => application,
           :deploy => deploy,
           :group => group,
-          :worker => cpu_number.to_s,
+          :worker => worker_number.to_s,
           :queues => queues
       )
       notifies :restart, resources(:service => "monit"), :delayed
