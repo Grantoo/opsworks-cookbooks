@@ -51,7 +51,7 @@ node[:deploy].each do |application, deploy|
   default[:deploy][application][:deploy_to] = "/srv/www/#{application}"
   default[:deploy][application][:chef_provider] = node[:deploy][application][:chef_provider] ? node[:deploy][application][:chef_provider] : node[:opsworks][:deploy_chef_provider]
   unless valid_deploy_chef_providers.include?(node[:deploy][application][:chef_provider])
-    raise "Invalid chef_provider for app #{application}: #{node[:deploy][application][:chef_provider]}. Valid providers: #{valid_deploy_chef_providers.join(', ')}."
+    raise "Invalid chef_provider '#{node[:deploy][application][:chef_provider]}' for app '#{application}'. Valid providers: #{valid_deploy_chef_providers.join(', ')}."
   end
   default[:deploy][application][:keep_releases] = node[:deploy][application][:keep_releases] ? node[:deploy][application][:keep_releases] : node[:opsworks][:deploy_keep_releases]
   default[:deploy][application][:current_path] = "#{node[:deploy][application][:deploy_to]}/current"
@@ -95,6 +95,7 @@ node[:deploy].each do |application, deploy|
   default[:deploy][application][:enable_submodules] = true
   default[:deploy][application][:shallow_clone] = false
   default[:deploy][application][:delete_cached_copy] = true
+  default[:deploy][application][:create_dirs_before_symlink] = ['tmp', 'public', 'config']
   default[:deploy][application][:symlink_before_migrate] = {}
 
   default[:deploy][application][:environment] = {"RAILS_ENV" => deploy[:rails_env],
@@ -107,6 +108,7 @@ node[:deploy].each do |application, deploy|
   # nodejs
   default[:deploy][application][:nodejs][:restart_command] = "monit restart node_web_app_#{application}"
   default[:deploy][application][:nodejs][:stop_command] = "monit stop node_web_app_#{application}"
+  default[:deploy][application][:nodejs][:port] = deploy[:ssl_support] ? 443 : 80
 end
 
 default[:opsworks][:skip_uninstall_of_other_rails_stack] = false
