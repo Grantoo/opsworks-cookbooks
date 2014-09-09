@@ -40,8 +40,8 @@ end
 sleep(5.0)
 
 node[:deploy].each do |application, deploy|
-  if !File.exists?(deploy[:deploy_to])
-    Chef::Log.info "skipping deploy_to #{deploy[:deploy_to]} -- does not exist"
+  if deploy[:application_type] != 'rails'
+    Chef::Log.debug("Skipping monit setup because application #{application} as it is not a Rails app")
     next
   end
 
