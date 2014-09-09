@@ -16,6 +16,11 @@ end
 group = node[:monit][:user_group]
 
 node[:deploy].each do |application, deploy|
+  if !File.exists?(deploy[:deploy_to])
+    Chef::Log.info "skipping deploy_to #{deploy[:deploy_to]} -- does not exist"
+    next
+  end
+
   Dir.glob(File.join(node[:monit][:conf_dir], "grantoo_resque_scheduler.monitrc")).each do |f|
     File.delete(f)
   end
