@@ -160,9 +160,9 @@ backend java_servers_ssl
 
 backend blog_servers
   mode http
-  balance roundrobin
-  server host1 blog.grantoo.com:80 check
-  server host2 blog.grantoo.com:80 check
+  option httpclose
+  reqirep ^([^\ :]*)\ /blog(.*)     \1\ /\2
+  server host1 blog.grantoo.com:80
 
 frontend http-in
   bind :80
