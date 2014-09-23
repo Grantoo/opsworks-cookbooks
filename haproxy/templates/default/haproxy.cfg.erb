@@ -159,7 +159,7 @@ backend java_servers_ssl
 <% end -%>
 
 backend blog_servers
-    mode tcp
+    mode http
     balance roundrobin
     server host1 blog.grantoo.com:80 check
 
