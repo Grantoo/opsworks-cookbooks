@@ -1,0 +1,24 @@
+# Name of the control table in DynamoDB
+appName = radarAnalytics
+
+# Source
+kinesisInputStream = radarAnalytics
+# Target
+s3Bucket = kinesis-radar-analytics
+
+# Your AWS region
+regionName = us-east-1
+retryLimit = 3
+
+# Flush buffer to S3 when any of these conditions is met:
+
+# 1MB = 1024*1024 = 1048576
+bufferByteSizeLimit = 1048576
+# 2 hours
+bufferMillisecondsLimit = 7200000
+
+# 1 minute
+#bufferMillisecondsLimit = 60000
+
+# 10000 records
+bufferRecordCountLimit = 10000
