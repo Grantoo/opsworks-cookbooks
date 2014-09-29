@@ -1,5 +1,9 @@
 package "monit"
 
+directory "/opt/kinesis_to_s3" do
+  action :create
+end
+
 remote_file "/opt/kinesis_to_s3/kinesis-to-s3.jar" do
   source "https://github.com/codeflows/kinesis-to-s3/releases/download/0.1/kinesis-to-s3-0.1.jar"
   action :nothing
