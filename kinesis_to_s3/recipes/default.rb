@@ -5,13 +5,14 @@ remote_file "/opt/kinesis_to_s3/kinesis-to-s3.jar" do
   action :nothing
 end
 
-template '/etc/monit/conf.d/kinesis-to-s3.monitrc' do
+template '/opt/kinesis_to_s3/kinesis-to-s3.properties' do
   source 'kinesis-to-s3.properties.erb'
 end
 
-template '/opt/kinesis_to_s3/kinesis-to-s3.jar' do
-  source 'kinesis-to-s3.properties.erb'
+template '/etc/monit/conf.d/kinesis-to-s3.monitrc' do
+  source 'kinesis-to-s3.monitrc.erb'
 end
+
 
 service "monit" do
   supports :status => false, :restart => true, :reload => true, :start => true
