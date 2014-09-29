@@ -1,0 +1,5 @@
+check process kinesis_to_s3
+  with pidfile "/opt/kinesis_to_s3/kinesis_to_s3.pid"
+  start program = "/bin/bash `<% node[:kinesisToS3Env] %> java -jar /opt/kinesis_to_s3/kinesis-to-s3.jar /opt/kinesis_to_s3/kinesis-to-s3.properties`" as uid deploy with timeout 60 seconds
+  stop program = "/bin/bash 'cat /opt/kinesis_to_s3/kinesis_to_s3.pid | kill'" with timeout 60 seconds
+  if totalmem is greater than 1024 MB for 10 cycles then restart # eating up memory?
