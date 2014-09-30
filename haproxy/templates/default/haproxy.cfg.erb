@@ -158,16 +158,16 @@ backend java_servers_ssl
   <% end -%>
 <% end -%>
 
-backend blog_servers
-  mode http
-  option httpclose
-  reqirep ^([^\ :]*)\ /blog(.*)     \1\ /\2
-  server host1 blog.grantoo.com:80
+#backend blog_servers
+#  mode http
+#  option httpclose
+#  reqirep ^([^\ :]*)\ /blog(.*)     \1\ /\2
+#  server host1 blog.grantoo.com:80
 
 frontend http-in
   bind :80
 
-  acl req_blog_path path_beg /blog
+#  acl req_blog_path path_beg /blog
   acl req_api_path path_beg /api/
   acl req_sdk_path path_beg /sdk/
 
@@ -213,7 +213,7 @@ frontend http-in
   
   # choose backend
 
-  use_backend blog_servers if req_blog_path
+#  use_backend blog_servers if req_blog_path
   use_backend rails_app_servers if req_api_path
   use_backend rails_app_servers if req_sdk_path
 
@@ -282,7 +282,7 @@ frontend https-in
   mode tcp
   bind :443
 
-  acl req_blog_path path_beg /blog
+#  acl req_blog_path path_beg /blog
   acl req_api_path path_beg /api/
   acl req_sdk_path path_beg /sdk/
 
@@ -314,7 +314,7 @@ frontend https-in
     <% end -%>
   <% end -%>
 
-  use_backend blog_servers if req_blog_path
+#  use_backend blog_servers if req_blog_path
   use_backend rails_app_servers_ssl if req_api_path
   use_backend rails_app_servers_ssl if req_sdk_path
 
