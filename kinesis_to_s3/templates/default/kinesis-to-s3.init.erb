@@ -3,26 +3,17 @@
 set -e
 . /lib/lsb/init-functions
 export JAVA_HOME=/usr/share/java/
-export AWS_ACCESS_KEY=<%= node[:awsAccessKey] %>
+export AWS_ACCESS_KEY_ID=<%= node[:awsAccessKeyId] %>
 export AWS_SECRET_KEY=<%= node[:awsSecretKey] %>
 
 case $1 in
   start)
-    if start-stop-daemon --start --background --quiet --make --pidfile /var/run/kinesis_to_s3.pid --chdir /usr/bin --chuid deploy --exec java -- -jar /opt/kinesis_to_s3/kinesis-to-s3.jar /opt/kinesis_to_s3/kinesis-to-s3.properties
-    then
-      log_daemon_msg "Starting kinesis-to-s3"
-    else
-      log_failure_msg "Failed to start kinesis-to-s3"
-    fi
+    java -jar /opt/kinesis_to_s3/kinesis-to-s3.jar /opt/kinesis_to_s3/kinesis-to-s3.properties &>/var/log/kinesis.log &
+    echo $! > /var/run/kinesis-to-s3.pid
     ;;
   stop)
-    if start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/kinesis_to_s3.pid
-    then
-      log_daemon_msg "Stopped kinesis-to-s3"
-      rm -f /var/run/kinesis_to_s3.pid
-    else
-      log_failure_msg "Failed to stop kinesis-to-s3"
-    fi
+    kill `cat /var/run/kinesis-to-s3.pid`
+    rm -f /var/run/kinesis-to-s3.pid
     ;;
   *)
     echo "usage: kinesis-to-s3 {start|stop}" ;;
