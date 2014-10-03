@@ -169,7 +169,7 @@ frontend http-in
 
   acl req_blog_path path_beg /blog
   acl req_api_path path_beg /api/
-  acl req_sdk_path path_beg /sdk
+  acl req_sdk_path path_beg /sdk/
 
   # all domains of Rails applications
   <% node[:haproxy][:rails_applications].each do |app_name, app_config| -%>
@@ -284,7 +284,7 @@ frontend https-in
 
   acl req_blog_path path_beg /blog
   acl req_api_path path_beg /api/
-  acl req_sdk_path path_beg /sdk
+  acl req_sdk_path path_beg /sdk/
 
   # all domains of Rails applications
   <% node[:haproxy][:rails_applications].each do |app_name, app_config| -%>
