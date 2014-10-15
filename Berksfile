@@ -1,0 +1,3 @@
+metadata
+
+cookbook 'elasticsearch', git: 'git://github.com/elasticsearch/cookbook-elasticsearch.git'
