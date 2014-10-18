@@ -1,0 +1,10 @@
+output {
+  elasticsearch_http {
+    host => <%= @host.inspect %>
+    port => <%= @port.inspect %>
+    user => <%= @user.inspect %>
+    password => <%= @password.inspect %>
+    # prevent creating duplicate
+    document_id => "%{[uuid]}"
+  }
+}
