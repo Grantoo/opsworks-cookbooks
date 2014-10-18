@@ -1,0 +1,10 @@
+input {
+  s3 {
+    bucket => <%= @bucket.inspect %>
+    credentials => <%= @aws_credentials.inspect %>
+    region_endpoint => <%= @region_endpoint.inspect %>
+    sincedb_path => <%= @sincedb_path.inspect %>
+    codec => "json"
+  }
+}
+
