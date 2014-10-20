@@ -1,3 +1,3 @@
 source 'https://api.berkshelf.com'
 
-cookbook 'logstash', '~> 0.9.2'
+cookbook 'logstash', git: 'git://github.com/lusis/chef-logstash'
