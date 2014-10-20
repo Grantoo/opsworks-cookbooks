@@ -20,11 +20,18 @@ Chef::Application.fatal!("attribute hash node['logstash']['instance']['#{name}']
 
 logstash_config name do
   input_vars = node['kinesis_logstash']['input']
+
+  sincedb_path = input_vars.fetch('sincedb_path')
+  unless sincedb_path['/'] # relative path
+    sincedb_path = Logstash.get_attribute_or_default(node, name, 'basedir') + sincedb_path
+    # default is /var/lib/logstash/last-s3-file
+  end
+
   variables(
     'aws_credentials' => input_vars.fetch('aws_credentials'),
     'bucket' => input_vars.fetch('bucket'),
     'region_endpoint' => input_vars.fetch('region_endpoint'),
-    'sincedb_path' => input_vars.fetch('sincedb_path')
+    'sincedb_path' => sincedb_path
   )
   templates({'input_s3.conf' => 'input_s3.conf.erb'})
   templates_cookbook('grantoo_kinesis_logstash')
