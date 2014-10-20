@@ -1,0 +1,45 @@
+filter {
+  # drop events without uuid (old boggus events)
+  if ![uuid] { drop { } }
+
+  # drop events without time
+  if ![time] { drop { } }
+
+  # drop events in the future
+  ruby {
+    code => "event.cancel if event['time'] > (Time.now.to_i + 3600)"
+  }
+
+  # drop events from 30 days ago
+  ruby {
+    code => "event.cancel if event['time'] < (Time.now.to_i - 30 * 24 * 3600)"
+  }
+
+  # set the event timestamp
+  date {
+    match => [ "time", "UNIX" ]
+  }
+
+  # add geoip attributes
+  geoip {
+    source => "ip"
+  }
+
+  # add clientFullVersion (4.0.106)
+  if [clientVersion] and [clientBuildVersion] {
+    mutate {
+      add_field => {
+        "clientFullVersion" => "%{clientVersion}.%{clientBuildVersion}"
+      }
+    }
+  }
+
+  # add osFullVersion (iOS 7.1.2)
+  if [osType] and [osVersion] {
+    mutate {
+      add_field => {
+        "osFullVersion" => "%{osType} %{osVersion}"
+      }
+    }
+  }
+}
