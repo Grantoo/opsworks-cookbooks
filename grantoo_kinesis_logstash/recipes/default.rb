@@ -33,14 +33,14 @@ logstash_config name do
     'region_endpoint' => input_vars.fetch('region_endpoint'),
     'sincedb_path' => sincedb_path
   )
-  templates({'input_s3.conf' => 'input_s3.conf.erb'})
+  templates({'100_input_s3.conf' => '100_input_s3.conf.erb'})
   templates_cookbook('grantoo_kinesis_logstash')
   notifies :restart, "logstash_service[#{name}]"
   action [:create]
 end
 
 logstash_config name do
-  templates({'filters.conf' => 'filters.conf.erb'})
+  templates({'200_filters.conf' => '200_filters.conf.erb'})
   templates_cookbook('grantoo_kinesis_logstash')
   notifies :restart, "logstash_service[#{name}]"
   action [:create]
@@ -54,7 +54,7 @@ logstash_config name do
     'user' => output_vars.fetch('user', ''),
     'password' => output_vars.fetch('password', '')
   )
-  templates({'output_elastic.conf' => 'output_elastic.conf.erb'})
+  templates({'300_output_elastic.conf' => '300_output_elastic.conf.erb'})
   templates_cookbook('grantoo_kinesis_logstash')
   notifies :restart, "logstash_service[#{name}]"
   action [:create]
