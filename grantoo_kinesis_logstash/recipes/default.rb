@@ -23,7 +23,7 @@ logstash_config name do
 
   sincedb_path = input_vars.fetch('sincedb_path')
   unless sincedb_path['/'] # relative path
-    sincedb_path = Logstash.get_attribute_or_default(node, name, 'basedir') + '/' + sincedb_path
+    sincedb_path = Logstash.get_attribute_or_default(node, name, 'homedir') + '/' + sincedb_path
     # default is /var/lib/logstash/last-s3-file
   end
 
