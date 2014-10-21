@@ -1,6 +1,6 @@
 name             'grantoo_kinesis_logstash'
-maintainer       'YOUR_NAME'
-maintainer_email 'YOUR_EMAIL'
+maintainer       'engineers@grantoo.org'
+maintainer_email 'engineers@grantoo.org'
 license          'All rights reserved'
 description      'Installs/Configures grantoo_kinesis_logstash'
 long_description 'Installs/Configures grantoo_kinesis_logstash'
