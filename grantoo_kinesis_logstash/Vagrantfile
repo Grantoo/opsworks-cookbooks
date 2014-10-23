@@ -21,7 +21,8 @@ chef_json = {
   kinesis_logstash: {
     input: {
       aws_credentials: ["yey-change-me", "yey-change-me"],
-      bucket: "kinesis-radar-analytics"
+      bucket: "kinesis-radar-analytics",
+      sincedb_path: "/opt/foo/bar/last_s3_file"
     },
     output: {
       host: "http://example.com",
