@@ -7,7 +7,7 @@ directory app_root_dir do
 end
 
 remote_file File.join(app_root_dir, 'kinesis-to-s3.jar') do
-  source "https://github.com/codeflows/kinesis-to-s3/releases/download/0.1/kinesis-to-s3-0.1.jar"
+  source "https://github.com/chenkirk/kinesis-to-s3/releases/download/v1.0-beta/kinesis-to-s3.jar"
   action :create
 end
 
