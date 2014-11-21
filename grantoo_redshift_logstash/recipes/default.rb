@@ -11,3 +11,11 @@ directory "/mnt/ebs1/logstash/redshift-csv/" do
   action :create
   recursive true
 end
+
+directory "/mnt/ebs1/logstash/redshift-uniq-csv" do
+  owner 'logstash'
+  group 'logstash'
+  mode '0644'
+  action :create
+  recursive true
+end
