@@ -7,15 +7,15 @@
 directory "/mnt/ebs1/logstash/redshift-csv/" do
   owner 'logstash'
   group 'logstash'
-  mode '0744'
+  mode '0755'
   action :create
   recursive true
 end
 
 directory "/mnt/ebs1/logstash/redshift-uniq-csv" do
-  owner 'logstash'
-  group 'logstash'
-  mode '0744'
+  owner 'ubuntu'
+  group 'ubuntu'
+  mode '0755'
   action :create
   recursive true
 end
