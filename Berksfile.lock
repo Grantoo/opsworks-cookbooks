@@ -1,4 +1,10 @@
 DEPENDENCIES
+  goapp
+    git: git@github.com:juniorrobot/chef-goapp.git
+    revision: 2c967a8560ed785d0b8900d7651fc39fa62f36b9
+  golang
+    git: git@github.com:crowdmob/chef-golang.git
+    revision: c70edc24fff95498c07708f899cd72a7ed0eff24
   logstash
     git: git://github.com/lusis/chef-logstash
     revision: 822d9b54caee01e8b4b2533efcdc60f1451d2f4c
@@ -23,6 +29,10 @@ GRAPH
     windows (>= 0.0.0)
     yum (~> 3.0)
     yum-epel (>= 0.0.0)
+  goapp (0.0.1)
+    golang (>= 0.0.0)
+    monit (>= 0.0.0)
+  golang (1.0.2)
   java (1.28.0)
   logrotate (1.7.0)
   logstash (0.10.0)
@@ -35,6 +45,7 @@ GRAPH
     logrotate (>= 0.0.0)
     python (>= 0.0.0)
     runit (>= 0.0.0)
+  monit (0.7.5)
   python (1.4.6)
     build-essential (>= 0.0.0)
     yum-epel (>= 0.0.0)
