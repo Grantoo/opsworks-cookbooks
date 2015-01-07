@@ -3,8 +3,8 @@ DEPENDENCIES
     git: git://github.com/juniorrobot/chef-goapp
     revision: 2c967a8560ed785d0b8900d7651fc39fa62f36b9
   golang
-    git: git://github.com/crowdmob/chef-golang
-    revision: c70edc24fff95498c07708f899cd72a7ed0eff24
+    git: git://github.com/masarakki/chef-golang
+    revision: cf7c010281787e3c04665fe0aa546a4d831264c1
   logstash
     git: git://github.com/lusis/chef-logstash
     revision: 003fcca1d0737c57bf980d2158f1f59df6fb1cbf
@@ -23,6 +23,7 @@ GRAPH
     apt (>= 0.0.0)
     python (>= 0.0.0)
   build-essential (2.1.3)
+  chef-sugar (2.5.0)
   chef_handler (1.1.6)
   curl (2.0.1)
   dmg (2.2.2)
@@ -42,7 +43,7 @@ GRAPH
   goapp (0.0.1)
     golang (>= 0.0.0)
     monit (>= 0.0.0)
-  golang (1.0.2)
+  golang (1.5.0)
   java (1.29.0)
   logrotate (1.7.0)
   logstash (0.11.3)
@@ -68,6 +69,9 @@ GRAPH
     yum-epel (>= 0.0.0)
   windows (1.36.1)
     chef_handler (>= 0.0.0)
+  xml (1.2.9)
+    build-essential (>= 0.0.0)
+    chef-sugar (>= 0.0.0)
   yum (3.5.2)
   yum-epel (0.6.0)
     yum (~> 3.0)
