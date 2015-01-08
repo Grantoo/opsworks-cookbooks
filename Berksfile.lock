@@ -8,6 +8,9 @@ DEPENDENCIES
   logstash
     git: git://github.com/lusis/chef-logstash
     revision: 003fcca1d0737c57bf980d2158f1f59df6fb1cbf
+  monit
+    git: git://github.com/markslemko/chef-monit
+    revision: ca251cf57eb09973f272be538b3c85110fdadac9
 
 GRAPH
   7-zip (1.0.2)
@@ -23,6 +26,7 @@ GRAPH
     apt (>= 0.0.0)
     python (>= 0.0.0)
   build-essential (2.1.3)
+  chef-sugar (2.5.0)
   chef_handler (1.1.6)
   curl (2.0.1)
   dmg (2.2.2)
@@ -58,7 +62,7 @@ GRAPH
     logrotate (>= 0.0.0)
     python (>= 0.0.0)
     runit (>= 0.0.0)
-  monit (0.7.5)
+  monit (0.1.0)
   python (1.4.6)
     build-essential (>= 0.0.0)
     yum-epel (>= 0.0.0)
@@ -68,6 +72,9 @@ GRAPH
     yum-epel (>= 0.0.0)
   windows (1.36.1)
     chef_handler (>= 0.0.0)
+  xml (1.2.9)
+    build-essential (>= 0.0.0)
+    chef-sugar (>= 0.0.0)
   yum (3.5.2)
   yum-epel (0.6.0)
     yum (~> 3.0)
