@@ -1,6 +1,6 @@
 DEPENDENCIES
   goapp
-    git: git://github.com/juniorrobot/chef-goapp
+    git: git://github.com/markslemko/chef-goapp
     revision: 2c967a8560ed785d0b8900d7651fc39fa62f36b9
   golang
     git: git://github.com/markslemko/chef-golang
