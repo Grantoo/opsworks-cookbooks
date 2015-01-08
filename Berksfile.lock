@@ -3,8 +3,8 @@ DEPENDENCIES
     git: git://github.com/juniorrobot/chef-goapp
     revision: 2c967a8560ed785d0b8900d7651fc39fa62f36b9
   golang
-    git: git://github.com/SimpleFinance/chef-golang
-    revision: af9f2f35242ced00c3d4f5bd015450859f00de6e
+    git: git://github.com/markslemko/chef-golang
+    revision: f0e4094c793fe312dbaebc0106b5e1bfe4b11d88
   logstash
     git: git://github.com/lusis/chef-logstash
     revision: 003fcca1d0737c57bf980d2158f1f59df6fb1cbf
