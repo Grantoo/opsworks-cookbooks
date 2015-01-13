@@ -1,7 +1,7 @@
 DEPENDENCIES
   goapp
     git: git://github.com/markslemko/chef-goapp
-    revision: dd0f434aeafdcc2150b8c544c47d32e2f4d419e8
+    revision: 3bfa5978e274ee92b3e6461453551bb81e39f3b2
   golang
     git: git://github.com/markslemko/chef-golang
     revision: f0e4094c793fe312dbaebc0106b5e1bfe4b11d88
@@ -30,7 +30,7 @@ GRAPH
   chef_handler (1.1.6)
   curl (2.0.1)
   dmg (2.2.2)
-  elasticsearch (0.3.10)
+  elasticsearch (0.3.13)
     ark (>= 0.2.4)
     build-essential (>= 0.0.0)
     java (>= 0.0.0)
