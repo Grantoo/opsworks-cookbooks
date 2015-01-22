@@ -393,7 +393,7 @@ frontend https-in
   use_backend nodejs_app_servers_ssl if nodejs_applications_ssl
   <% end -%>
   <% unless node[:haproxy][:goapp_applications].empty? || node[:haproxy][:goapp_backends].empty? -%>
-      use_backend goapp_app_servers_ssl if goapp_applications_ssl
+  use_backend goapp_app_servers_ssl if goapp_applications_ssl
   <% end -%>
   <% unless node[:haproxy][:static_applications].empty? || node[:haproxy][:static_backends].empty? -%>
   use_backend static_servers_ssl if static_applications_ssl
