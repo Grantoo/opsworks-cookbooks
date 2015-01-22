@@ -26,16 +26,8 @@ Chef::Log.error(node.to_json)
 #     "backends": 16
 # }
 
-node[:haproxy].merge!({
-  :goapp_applications => { },
-  :goapp_backends => []
-})
 node[:opsworks][:layers][:goappserver][:instances].each do |server_name, details|
-  node[:haproxy][:goapp_backends].merge!({
-    :name => server_name,
-    :ip => details[:ip],
-    :backends => 16
-  })
+  node.normal[:haproxy][:goapp_backends] << { :name => server_name, :ip => details[:ip], :backends => 16 }
 end
 
 template "/etc/haproxy/haproxy.cfg" do

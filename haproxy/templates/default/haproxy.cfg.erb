@@ -120,24 +120,24 @@ backend nodejs_app_servers_ssl
 <% end -%>
 
 <% if !node[:haproxy][:goapp_backends].empty? -%>
-    backend goapp_app_servers
+backend goapp_app_servers
     balance <%= node[:haproxy][:balance] %>
     option redispatch
     option forwardfor
     option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][:health_check_url] %>
     <% node[:haproxy][:goapp_backends].each do |backend| -%>
-        server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_goapp_app] %> check inter <%= node[:haproxy][:check_interval] %>
+    server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_goapp_app] %> check inter <%= node[:haproxy][:check_interval] %>
     <% end -%>
 <% end -%>
 
 <% if !node[:haproxy][:goapp_backends].empty? -%>
-    backend goapp_app_servers_ssl
+backend goapp_app_servers_ssl
     mode tcp
     balance <%= node[:haproxy][:balance] %>
     option redispatch
     option ssl-hello-chk
     <% node[:haproxy][:goapp_backends].each do |backend| -%>
-        server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_goapp_app_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
+    server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_goapp_app_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
     <% end -%>
 <% end -%>
 
