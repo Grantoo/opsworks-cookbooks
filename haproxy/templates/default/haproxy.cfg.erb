@@ -120,24 +120,24 @@ backend nodejs_app_servers_ssl
 <% end -%>
 
 <% if !node[:haproxy][:goapp_backends].empty? -%>
-    backend goapp_app_servers
+backend goapp_app_servers
     balance <%= node[:haproxy][:balance] %>
     option redispatch
     option forwardfor
     option httpchk <%= node[:haproxy][:health_check_method] %> <%= node[:haproxy][:health_check_url] %>
     <% node[:haproxy][:goapp_backends].each do |backend| -%>
-        server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_goapp_app] %> check inter <%= node[:haproxy][:check_interval] %>
+    server <%= backend['name'] %> <%= backend['ip'] %>:80 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_goapp_app] %> check inter <%= node[:haproxy][:check_interval] %>
     <% end -%>
 <% end -%>
 
 <% if !node[:haproxy][:goapp_backends].empty? -%>
-    backend goapp_app_servers_ssl
+backend goapp_app_servers_ssl
     mode tcp
     balance <%= node[:haproxy][:balance] %>
     option redispatch
     option ssl-hello-chk
     <% node[:haproxy][:goapp_backends].each do |backend| -%>
-        server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_goapp_app_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
+    server <%= backend['name'] %> <%= backend['ip'] %>:443 weight <%= backend['backends'] || 10 %> maxconn <%= backend['backends'] * node[:haproxy][:maxcon_factor_goapp_app_ssl] %> check inter <%= node[:haproxy][:check_interval] %>
     <% end -%>
 <% end -%>
 
@@ -195,7 +195,8 @@ frontend http-in
   bind :80
 
   acl req_blog_path path_beg /blog
-  acl req_api_path path_beg /api/
+  acl req_apiv2_path path_beg /api/v2/
+  acl req_api_path path_beg /api/v1/
   acl req_sdk_path path_beg /sdk/
   acl req_users_path path_beg /users/
 
@@ -253,6 +254,7 @@ frontend http-in
 
   use_backend blog_servers if req_blog_path
   use_backend rails_app_servers if req_api_path
+  use_backend goapp_app_servers if req_apiv2_path
   use_backend rails_app_servers if req_sdk_path
   use_backend rails_app_servers if req_users_path
 
@@ -324,7 +326,7 @@ frontend http-in
   <% elsif !node[:haproxy][:nodejs_backends].empty? -%>
   default_backend nodejs_app_servers
   <% elsif !node[:haproxy][:goapp_backends].empty? -%>
-      default_backend goapp_app_servers
+  default_backend goapp_app_servers
   <% elsif !node[:haproxy][:static_backends].empty? -%>
   default_backend static_servers
   <% elsif !node[:haproxy][:java_backends].empty? -%>
@@ -377,6 +379,7 @@ frontend https-in
 
   use_backend blog_servers if req_blog_path
   use_backend rails_app_servers_ssl if req_api_path
+  use_backend goapp_app_servers_ssl if req_apiv2_path
   use_backend rails_app_servers_ssl if req_sdk_path
   use_backend rails_app_servers_ssl if req_users_path
 
@@ -390,7 +393,7 @@ frontend https-in
   use_backend nodejs_app_servers_ssl if nodejs_applications_ssl
   <% end -%>
   <% unless node[:haproxy][:goapp_applications].empty? || node[:haproxy][:goapp_backends].empty? -%>
-      use_backend goapp_app_servers_ssl if goapp_applications_ssl
+  use_backend goapp_app_servers_ssl if goapp_applications_ssl
   <% end -%>
   <% unless node[:haproxy][:static_applications].empty? || node[:haproxy][:static_backends].empty? -%>
   use_backend static_servers_ssl if static_applications_ssl
