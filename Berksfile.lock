@@ -1,7 +1,7 @@
 DEPENDENCIES
   goapp
     git: git://github.com/markslemko/chef-goapp
-    revision: 0b87a0e26407d26f80650f191d7e8394401bf74b
+    revision: 8d6db17a8260955d7239ccf2d14c8ae088101027
   golang
     git: git://github.com/markslemko/chef-golang
     revision: f0e4094c793fe312dbaebc0106b5e1bfe4b11d88
@@ -48,7 +48,7 @@ GRAPH
     monit (>= 0.0.0)
   golang (1.0.1)
   java (1.29.0)
-  logrotate (1.7.0)
+  logrotate (1.8.0)
   logstash (0.11.3)
     ant (>= 0.0.0)
     apt (>= 0.0.0)
