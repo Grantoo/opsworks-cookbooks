@@ -10,3 +10,9 @@
 #
 #normal[:haproxy][:stats_url] = '/haproxy?stats'
 #normal[:haproxy][:stats_user] = 'opsworks'
+
+
+normal[:haproxy][:goapp_applications] = {}
+normal[:haproxy][:goapp_backends] = []
+normal[:haproxy][:maxcon_factor_goapp_app] = 10
+normal[:haproxy][:maxcon_factor_goapp_app_ssl] = 10
