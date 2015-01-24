@@ -29,11 +29,11 @@ remote_file "/home/ubuntu/s3cmd-1.5.0-rc1.zip" do
 end
 
 # unzip s3cmd
-batch "unzip and move s3cmd" do
-  code <<-EOF
+bash "unzip and move s3cmd" do
+  code <<-EOL
     unzip /home/ubuntu/s3cmd-1.5.0-rc1.zip -d /home/ubuntu/
     mv /home/ubuntu/s3cmd-1.5.0-rc1/ /home/ubuntu/s3cmd/
-  EOF
+  EOL
 end
 
 # setup s3cmd
