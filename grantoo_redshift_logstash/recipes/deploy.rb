@@ -12,14 +12,16 @@ node[:deploy].each do |application, deploy|
     next
   end
 
-  opsworks_deploy_dir do
-    user deploy[:user]
-    group deploy[:group]
-    path '/home/ubuntu'
-  end
+  prepare_git_checkouts(
+    :user => 'ubuntu',
+    :group => 'ubuntu',
+    :home => '/home/ubuntu',
+    :ssh_key => deploy[:scm][:ssh_key]
+  ) if deploy[:scm][:scm_type].to_s == 'git'
 
-  opsworks_deploy do
-    deploy_data deploy
-    app application
+  git '/home/ubuntu/redshift-pipeline' do
+    repository deploy[:scm][:repository]
+    revision deploy[:scm][:revision]
+    action :sync
   end
 end
