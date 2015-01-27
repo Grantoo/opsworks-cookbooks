@@ -1,15 +1,15 @@
 DEPENDENCIES
   goapp
-    git: git://github.com/markslemko/chef-goapp
-    revision: 6f83c3057f481ff798896214c8592a6942097b6b
+    git: git://github.com/Grantoo/chef-goapp
+    revision: fb1dc4aacdaa8be5bfbd0ea2601a231819b8fcff
   golang
-    git: git://github.com/markslemko/chef-golang
+    git: git://github.com/Grantoo/chef-golang
     revision: f0e4094c793fe312dbaebc0106b5e1bfe4b11d88
   logstash
     git: git://github.com/lusis/chef-logstash
     revision: 003fcca1d0737c57bf980d2158f1f59df6fb1cbf
   monit
-    git: git://github.com/markslemko/chef-monit
+    git: git://github.com/Grantoo/chef-monit
     revision: ca251cf57eb09973f272be538b3c85110fdadac9
 
 GRAPH
