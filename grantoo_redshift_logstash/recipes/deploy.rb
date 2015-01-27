@@ -27,4 +27,11 @@ node[:deploy].each do |application, deploy|
     checkout_branch 'master'
     action :sync
   end
+
+  link "/home/ubuntu/redshift-pipeline/logstash/confs/*" do
+    to "/opt/logstash/agent/etc/conf.d/"
+    owner "logstash"
+    group "logstash"
+    action :create
+  end
 end
