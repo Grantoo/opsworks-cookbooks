@@ -23,6 +23,8 @@ node[:deploy].each do |application, deploy|
     repository deploy[:scm][:repository]
     revision deploy[:scm][:revision]
     user 'ubuntu'
+    group 'ubuntu'
+    checkout_branch 'master'
     action :sync
   end
 end
