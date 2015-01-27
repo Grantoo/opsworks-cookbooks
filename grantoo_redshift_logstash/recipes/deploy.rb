@@ -22,6 +22,7 @@ node[:deploy].each do |application, deploy|
   git '/home/ubuntu/redshift-pipeline' do
     repository deploy[:scm][:repository]
     revision deploy[:scm][:revision]
+    user 'ubuntu'
     action :sync
   end
 end
