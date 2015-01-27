@@ -6,6 +6,8 @@
 
 # starts logstash agent
 
-service "logstash_agent" do
-  action :start
+bash "unzip and move s3cmd" do
+  code <<-EOL
+    service logstash_agent start
+  EOL
 end
