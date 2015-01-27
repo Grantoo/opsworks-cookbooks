@@ -27,13 +27,4 @@ node[:deploy].each do |application, deploy|
     checkout_branch 'master'
     action :sync
   end
-
-  Dir["/home/ubuntu/redshift-pipeline/logstash/confs/*"].each do |to_file|
-    link "/opt/logstash/agent/etc/conf.d/#{File.basename(to_file)}" do
-      to to_file
-      owner "logstash"
-      group "logstash"
-      action :create
-    end
-  end
 end
