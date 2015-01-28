@@ -6,6 +6,9 @@
 
 include_recipe 'deploy'
 
+repo = nil
+revision = nil
+
 node[:deploy].each do |application, deploy|
   if deploy[:application_type] != 'other' && application != 'redshift-pipeline'
     Chef::Log.debug("Skipping grantoo_redshift_logstash::deploy application #{application} as it is not the redshift-pipeline project")
@@ -18,26 +21,26 @@ node[:deploy].each do |application, deploy|
     :home => '/home/ubuntu',
     :ssh_key => deploy[:scm][:ssh_key]
   ) if deploy[:scm][:scm_type].to_s == 'git'
-
-
-  deploy deploy[:deploy_to] do
-    repository deploy[:scm][:repository]
-    user 'ubuntu'
-    group 'ubuntu'
-    migrate deploy[:migrate]
-    migration_command deploy[:migrate_command]
-    environment deploy[:environment].to_hash
-    action deploy[:action]
-
-    case deploy[:scm][:scm_type].to_s
-      when 'git'
-        scm_provider :git
-        enable_submodules deploy[:enable_submodules]
-        shallow_clone deploy[:shallow_clone]
-      else
-        raise "unsupported SCM type #{deploy[:scm][:scm_type].inspect}"
-    end
-  end
+  #
+  #
+  # deploy deploy[:deploy_to] do
+  #   repository deploy[:scm][:repository]
+  #   user 'ubuntu'
+  #   group 'ubuntu'
+  #   migrate deploy[:migrate]
+  #   migration_command deploy[:migrate_command]
+  #   environment deploy[:environment].to_hash
+  #   action deploy[:action]
+  #
+  #   case deploy[:scm][:scm_type].to_s
+  #     when 'git'
+  #       scm_provider :git
+  #       enable_submodules deploy[:enable_submodules]
+  #       shallow_clone deploy[:shallow_clone]
+  #     else
+  #       raise "unsupported SCM type #{deploy[:scm][:scm_type].inspect}"
+  #   end
+  # end
 
 
   Chef::Log.info("inside confs count should be 3: #{Dir["/home/ubuntu/redshift-pipeline/logstash/confs/*"].count}")
@@ -52,7 +55,10 @@ node[:deploy].each do |application, deploy|
     end
   end
 
+  repo =  deploy[:scm][:repository]
+  revision = deploy[:scm][:revision]
 
+  Chef::Log.info("inside git, #{repo}, #{revision}")
   # git '/home/ubuntu/redshift-pipeline' do
   #   repository deploy[:scm][:repository]
   #   revision deploy[:scm][:revision]
@@ -62,6 +68,14 @@ node[:deploy].each do |application, deploy|
   # end
 end
 
+Chef::Log.info("outside git, #{repo}, #{revision}")
+git '/home/ubuntu/redshift-pipeline' do
+  repository repo
+  revision revision
+  user 'ubuntu'
+  group 'ubuntu'
+  action :sync
+end
 
 Chef::Log.info("outside confs count should be 3: #{Dir["/home/ubuntu/redshift-pipeline/logstash/confs/*"].count}")
 Chef::Log.info("outside conf.d count should be 1: #{Dir["/opt/logstash/agent/etc/conf.d/"].count}")
