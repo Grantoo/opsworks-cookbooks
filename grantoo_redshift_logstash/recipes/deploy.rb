@@ -52,7 +52,7 @@ node[:deploy].each do |application, deploy|
     revision deploy[:scm][:revision]
     user 'ubuntu'
     group 'ubuntu'
-    notifies :run, "ruby[symlink-conf]", :delayed
+    notifies :run, "bash[symlink-conf]", :delayed
     action :sync
   end
 
@@ -70,20 +70,11 @@ node[:deploy].each do |application, deploy|
   end
 end
 
-ruby "symlink-conf" do
-  Chef::Log.info("ruby block confs count should be 3: #{Dir["/home/ubuntu/redshift-pipeline/logstash/confs/*"].count}")
-  Chef::Log.info("ruby block conf.d count should be 1: #{Dir["/opt/logstash/agent/etc/conf.d/"].count}")
-
-  code "
-  Dir['/home/ubuntu/redshift-pipeline/logstash/confs/*'].each do |to_file|
-    from_file = '/opt/logstash/agent/etc/conf.d/' + File.basename(to_file)
-    link from_file do
-      to to_file
-      owner 'logstash'
-      group 'logstash'
-      action :create
-    end
-  end"
+bash "symlink-conf" do
+  code "ln -s ~ubuntu/redshift/SmallProjectCollection/RedshiftPipeline/logstash/confs/*  /opt/logstash/agent/etc/conf.d/"
+  user "logstash"
+  group "logstash"
+  action :run
 end
 #
 # Chef::Log.info("outside git, #{repo}, #{revision}")
