@@ -24,7 +24,6 @@ node[:deploy].each do |application, deploy|
     revision deploy[:scm][:revision]
     user 'ubuntu'
     group 'ubuntu'
-    # notifies :run, "bash[symlink-conf]", :delayed
     action :sync
   end
 
