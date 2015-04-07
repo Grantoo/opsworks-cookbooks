@@ -5,18 +5,9 @@
 # Copyright (c) 2014 Fuel, All Rights Reserved.
 
 # create csv directory
-directory "/mnt/ebs1/logstash/redshift-csv/" do
+directory "/mnt/logstash/redshift-csv/" do
   owner 'logstash'
   group 'logstash'
-  mode '0755'
-  action :create
-  recursive true
-end
-
-# create unique csv directory (deprecated)
-directory "/mnt/ebs1/logstash/redshift-uniq-csv" do
-  owner 'ubuntu'
-  group 'ubuntu'
   mode '0755'
   action :create
   recursive true
