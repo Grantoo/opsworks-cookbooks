@@ -4,6 +4,15 @@
 #
 # Copyright (c) 2014 Fuel, All Rights Reserved.
 
+# create the logstash directory for sincedb_path
+directory "/mnt/logstash/" do
+  owner 'logstash'
+  group 'logstash'
+  mode '0755'
+  action :create
+  recursive true
+end
+
 # create csv directory
 directory "/mnt/logstash/redshift-csv/" do
   owner 'logstash'
