@@ -13,57 +13,27 @@ bash "install_mongodb" do
   EOH
 end
 
-chef_gem "aws-sdk" do
-  action :install
-end
-require "aws-sdk"
-
-
-server_descriptions = {"ds051207" => "default", "ds057781" => "users_db_session"}
-latest_snapshots = {"default" => nil, "users_db_session" => nil}
-volume_devices = {"default" => "xvdm", "users_db_session" => "xvdn"}
-
-ec2_resource = Aws::EC2::Resource.new({:region => 'us-east-1'})
-snapshots = ec2_resource.snapshots({:filters => [{ name: 'owner-id', values:['060273974422'] }]})
-
-snapshots.each do |snapshot|
-  snapshot_key = nil
-  server_descriptions.keys.each do |key|
-    if snapshot.description.include?(key)
-      snapshot_key = server_descriptions[key]
-      break
-    end
-  end
-
-  if latest_snapshots[snapshot_key] == nil || snapshot.start_time > latest_snapshots[snapshot_key].start_time
-    latest_snapshots[snapshot_key] = snapshot
-  end
+bash "gem_install_aws_sdk" do
+  user 'root'
+  code <<-EOH
+  gem install aws-sdk
+  EOH
 end
 
-availability_zone = 'us-east-1b'
-latest_snapshots.each_pair do |key, snapshot|
-  snapshot_id = snapshot.id
-  ec2_client = Aws::EC2::Client.new({:region => 'us-east-1'})
-  params = {
-    :availability_zone => availability_zone,
-    :snapshot_id => snapshot_id,
-    :volume_type => 'gp2',
-  }
-  response = ec2_client.create_volume(params)
-  sleep(10)
-  
-  instance_id = node[:opsworks][:instance][:aws_instance_id]
-  volume_id = response.volume_id
-  ec2_client = Aws::EC2::Client.new({:region => 'us-east-1'})
-  params = {
-    :volume_id => volume_id,
-    :instance_id => instance_id,
-    :device => volume_devices[key],
-  }
-  response = ec2_client.attach_volume(params)
-  db_identifier = key
+template "/home/ubuntu/create_volume.rb" do
+  source "create_volume.rb.erb"
+  owner 'ubuntu'
+  group 'ubuntu'
+  mode '0600'
+  action :create
 end
 
+bash "create_volume" do
+  user 'ubuntu'
+  code <<-EOH
+  ruby /home/ubuntu/create_volume.rb
+  EOH
+end
 
 bash "mount_devices" do
   user 'root'
