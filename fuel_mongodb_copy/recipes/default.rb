@@ -15,7 +15,9 @@ end
 
 bash "gem_install_aws_sdk" do
   user 'root'
-  code 'gem install aws-sdk'
+  code <<-EOH
+  gem install aws-sdk
+  EOH
 end
 
 require "aws-sdk"
