@@ -3,6 +3,16 @@ Fuel MongoDB Copy
 
 Sets up an instance and mounts the latest production MongoDB on it.
 
+Stack configuration
+-------------------
+
+Make sure you configure the stack with custom JSON
+
+    {
+      "awsAccessKeyId": "xxxxxxxxxxx",
+      "awsSecretKey": "xxxxxxxxxxx"
+    }
+
 High level workflow
 -------------------
 
