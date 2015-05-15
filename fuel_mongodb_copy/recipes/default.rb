@@ -21,7 +21,7 @@ bash "gem_install_aws_sdk" do
 end
 
 chef_gem "aws-sdk" do
-  action :instal
+  action :install
 end
 
 require 'aws-sdk'
