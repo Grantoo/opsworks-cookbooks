@@ -23,7 +23,7 @@ server_descriptions = {"ds051207" => "default", "ds057781" => "users_db_session"
 latest_snapshots = {"default" => nil, "users_db_session" => nil}
 volume_devices = {"default" => "xvdm", "users_db_session" => "xvdn"}
 
-ec2_resource = Aws::EC2::Resource.new({:region => 'us-east-1'})
+ec2_resource = ::Aws::EC2::Resource.new({:region => 'us-east-1'})
 snapshots = ec2_resource.snapshots({:filters => [{ name: 'owner-id', values:['060273974422'] }]})
 
 snapshots.each do |snapshot|
@@ -43,7 +43,7 @@ end
 availability_zone = 'us-east-1b'
 latest_snapshots.each_pair do |key, snapshot|
   snapshot_id = snapshot.id
-  ec2_client = Aws::EC2::Client.new({:region => 'us-east-1'})
+  ec2_client = ::Aws::EC2::Client.new({:region => 'us-east-1'})
   params = {
     :availability_zone => availability_zone,
     :snapshot_id => snapshot_id,
@@ -54,7 +54,7 @@ latest_snapshots.each_pair do |key, snapshot|
   
   instance_id = node[:opsworks][:instance][:aws_instance_id]
   volume_id = response.volume_id
-  ec2_client = Aws::EC2::Client.new({:region => 'us-east-1'})
+  ec2_client = ::Aws::EC2::Client.new({:region => 'us-east-1'})
   params = {
     :volume_id => volume_id,
     :instance_id => instance_id,
