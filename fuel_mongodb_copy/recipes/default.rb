@@ -13,8 +13,9 @@ bash "install_mongodb" do
   EOH
 end
 
-gem_package "aws-sdk" do
-  action :install
+bash "install_mongodb" do
+  user 'root'
+  code 'gem install aws-sdk'
 end
 
 require "aws-sdk"
@@ -22,6 +23,11 @@ require "aws-sdk"
 server_descriptions = {"ds051207" => "default", "ds057781" => "users_db_session"}
 latest_snapshots = {"default" => nil, "users_db_session" => nil}
 volume_devices = {"default" => "xvdm", "users_db_session" => "xvdn"}
+
+::Aws.config.update({
+  :region => 'us-east-1',
+  :credentials => ::Aws::Credentials.new(node[:awsAccessKeyId], node[:awsSecretKey])
+})
 
 ec2_resource = ::Aws::EC2::Resource.new({:region => 'us-east-1'})
 snapshots = ec2_resource.snapshots({:filters => [{ name: 'owner-id', values:['060273974422'] }]})
