@@ -44,16 +44,6 @@ bash "mount_devices" do
   mkdir -p /mnt/mongodb/users_db_session
   mount /dev/xvdn /mnt/mongodb/users_db_session/
 
-  chown --recursive mongodb:mongodb /mnt/mongodb/default/
+  chown --recursive mongodb:mongodb /mnt/mongodb/
   EOH
 end
-
-# TODO: Script to modify mongod.conf
-# <<-BASH
-#   /var/lib/mongodb
-#   /etc/mongod.conf
-
-#   dbpath=/mnt/mongodb/default/data/s-ds051207-a0
-#   directoryperdb = true
-
-# BASH
