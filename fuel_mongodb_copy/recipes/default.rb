@@ -13,7 +13,7 @@ bash "install_mongodb" do
   EOH
 end
 
-bash "install_mongodb" do
+bash "gem_install_aws_sdk" do
   user 'root'
   code 'gem install aws-sdk'
 end
