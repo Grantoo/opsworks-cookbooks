@@ -13,11 +13,11 @@ bash "install_mongodb" do
   EOH
 end
 
-chef_gem "aws-sdk" do
+gem_package "aws-sdk" do
   action :install
 end
-require "aws-sdk"
 
+require "aws-sdk"
 
 server_descriptions = {"ds051207" => "default", "ds057781" => "users_db_session"}
 latest_snapshots = {"default" => nil, "users_db_session" => nil}
