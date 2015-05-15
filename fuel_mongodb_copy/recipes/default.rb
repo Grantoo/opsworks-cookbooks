@@ -28,7 +28,7 @@ template "/home/ubuntu/create_volume.rb" do
   action :create
 end
 
-bash "mount_volume" do
+bash "create_volume" do
   user 'ubuntu'
   code <<-EOH
   ruby /home/ubuntu/create_volume.rb

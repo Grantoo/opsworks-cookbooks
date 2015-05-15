@@ -6,7 +6,7 @@ volume_devices = {"default" => "xvdm", "users_db_session" => "xvdn"}
 
 ::Aws.config.update({
   :region => 'us-east-1',
-  :credentials => ::Aws::Credentials.new(node[:awsAccessKeyId], node[:awsSecretKey])
+  :credentials => ::Aws::Credentials.new('<%= node[:awsAccessKeyId] %>', '<%= node[:awsSecretKey] %>')
 })
 
 ec2_resource = ::Aws::EC2::Resource.new({:region => 'us-east-1'})
@@ -38,7 +38,7 @@ latest_snapshots.each_pair do |key, snapshot|
   response = ec2_client.create_volume(params)
   sleep(10)
   
-  instance_id = node[:opsworks][:instance][:aws_instance_id]
+  instance_id = '<%= node[:opsworks][:instance][:aws_instance_id] %>'
   volume_id = response.volume_id
   ec2_client = ::Aws::EC2::Client.new({:region => 'us-east-1'})
   params = {
