@@ -20,6 +20,12 @@ bash "gem_install_aws_sdk" do
   EOH
 end
 
+chef_gem "aws-sdk" do
+  action :instal
+end
+
+require 'aws-sdk'
+
 ruby_block "setup_volumes" do
   block do
     require "aws-sdk"
