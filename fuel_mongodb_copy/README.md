@@ -13,7 +13,7 @@ Usage
   1. Add a line `directoryperdb = true`
   1. Modify the line dbpath=xxxxx to point to the database you would like to point to. The following shows examples but you will need to modify `N` to be the right folder name.
     1. `dbpath=/mnt/mongodb/default/data/s-ds051207-aN` for default database
-    1. `dbpath=/mnt/mongodb/users_db_session/s-ds057781-aN` for default database
+    1. `dbpath=/mnt/mongodb/users_db_session/s-ds057781-aN` for users database
 1. Start mongo db server with new configuration `sudo service mongod start`
 1. You can now use the database by connecting to it with `mongo`
 1. When you are done with the server, shutdown and delete the instance. Go into EC2 volumes and locate the volumes created and delete them.
