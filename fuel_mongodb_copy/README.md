@@ -6,7 +6,7 @@ Sets up an instance and mounts the latest production MongoDB on it.
 Usage
 -----
 
-1. Launch an instance in opsworks application Mongodb Copy. This will create volumes from backup snapshots. It is a good idea to launch an instance with big enough memory for the database size.
+1. Launch an instance in opsworks application Mongodb Copy. This will create volumes from backup snapshots. It is a good idea to launch an instance with big enough memory for the database size. You must launch this instance in us-east-1b as the script creates volumes there.
 1. SSH into server
 1. Stop mongo db server `sudo service mongod stop`
 1. Modify /etc/mongod.conf (e.g. `sudo vi /etc/mongod.conf`)
