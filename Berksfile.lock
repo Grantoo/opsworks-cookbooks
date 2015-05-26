@@ -5,6 +5,9 @@ DEPENDENCIES
   golang
     git: git://github.com/Grantoo/chef-golang
     revision: f0e4094c793fe312dbaebc0106b5e1bfe4b11d88
+  grantoo_nginx
+    git: git@github.com:Grantoo/chef-nginx-configs.git
+    revision: 2fe9b298345588f447d8a598fbbe3f77d7314c58
   logstash
     git: git://github.com/lusis/chef-logstash
     revision: 003fcca1d0737c57bf980d2158f1f59df6fb1cbf
@@ -47,6 +50,7 @@ GRAPH
     golang (>= 0.0.0)
     monit (>= 0.0.0)
   golang (1.0.1)
+  grantoo_nginx (1.0.0)
   java (1.29.0)
   logrotate (1.8.0)
   logstash (0.11.3)
