@@ -6,7 +6,7 @@ DEPENDENCIES
     git: git://github.com/Grantoo/chef-golang
     revision: f0e4094c793fe312dbaebc0106b5e1bfe4b11d88
   grantoo_nginx
-    git: git://github.com/Grantoo/chef-nginx-configs.git
+    git: git@github.com:Grantoo/chef-nginx-configs.git
     revision: 36e55c57afe8462c99dac461ccbb3bca94c85459
   logstash
     git: git://github.com/lusis/chef-logstash
