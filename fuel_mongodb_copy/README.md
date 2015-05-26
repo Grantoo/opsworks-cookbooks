@@ -18,6 +18,22 @@ Usage
 1. You can now use the database by connecting to it with `mongo`
 1. When you are done with the server, shutdown and delete the instance. Go into EC2 volumes and locate the volumes created and delete them.
 
+Caveats
+-------
+
+you may have to re-run the setup script in opsworks to get it to install the first time.
+also the drives may not mount during the chef script, but can be mounted after... so you may want to run this script manually after 'successful' setup
+
+```
+mkdir -p /mnt/mongodb/default
+mount /dev/xvdm /mnt/mongodb/default/
+
+mkdir -p /mnt/mongodb/users_db_session
+mount /dev/xvdn /mnt/mongodb/users_db_session/
+
+chown --recursive mongodb:mongodb /mnt/mongodb/
+```
+
 Stack configuration
 -------------------
 
