@@ -7,7 +7,7 @@ DEPENDENCIES
     revision: f0e4094c793fe312dbaebc0106b5e1bfe4b11d88
   grantoo_nginx
     git: git@github.com:Grantoo/chef-nginx-configs.git
-    revision: 36e55c57afe8462c99dac461ccbb3bca94c85459
+    revision: 2c8d907639420f2ac3716142e2c02d0701ed84bd
   logstash
     git: git://github.com/lusis/chef-logstash
     revision: 003fcca1d0737c57bf980d2158f1f59df6fb1cbf
