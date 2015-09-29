@@ -1,0 +1,10 @@
+description "Start multiple Resque workers."
+
+task
+
+script
+  for i in `seq 1 <%= @cpu_count %>`
+  do
+    start resque_worker ID=$i
+  done
+end script
