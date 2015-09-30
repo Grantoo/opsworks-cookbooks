@@ -7,5 +7,5 @@ instance $ID
 
 script
   /usr/bin/env RUBY_GC_MALLOC_LIMIT=50000000 HOME=/home/deploy PATH=/usr/local/bin:/usr/bin:/bin:$PATH /bin/sh -l -c \
-    'cd <%= @deploy[:deploy_to] %>/current; RAILS_ENV=<%= @deploy[:rails_env] %> QUEUE=<%= @queues %> VERBOSE=1 PIDFILE=<%= @deploy[:deploy_to] %>/shared/pids/grantoo_resque_$ID.pid nohup bundle exec rake environment resque:work >><%= @deploy[:deploy_to] %>/shared/log/resque_worker.log 2>&1'
+    "cd <%= @deploy[:deploy_to] %>/current; RAILS_ENV=<%= @deploy[:rails_env] %> QUEUE=<%= @queues %> VERBOSE=1 PIDFILE=<%= @deploy[:deploy_to] %>/shared/pids/grantoo_resque_${ID}.pid nohup bundle exec rake environment resque:work >><%= @deploy[:deploy_to] %>/shared/log/resque_worker.log 2>&1"
 end script
