@@ -14,6 +14,9 @@ DEPENDENCIES
   monit
     git: git://github.com/Grantoo/chef-monit
     revision: ca251cf57eb09973f272be538b3c85110fdadac9
+  php56
+    git: git@github.com:Grantoo/httpd24_php56_opsworks.git
+    revision: d5a4298c20981c20690369a628fb87f48e182b88
 
 GRAPH
   7-zip (1.0.2)
@@ -67,6 +70,7 @@ GRAPH
     python (>= 0.0.0)
     runit (>= 0.0.0)
   monit (0.1.0)
+  php56 (0.0.1)
   python (1.4.6)
     build-essential (>= 0.0.0)
     yum-epel (>= 0.0.0)
