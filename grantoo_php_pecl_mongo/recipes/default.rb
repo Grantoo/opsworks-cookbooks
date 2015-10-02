@@ -1,0 +1,28 @@
+case node[:platform]
+  when 'ubuntu','debian'
+    template node[:mongo][:ini_file] do
+      source 'mongo.ini.erb'
+      owner 'root'
+      group 'root'
+      mode 0644
+    end
+
+    link node[:mongo][:ini_link] do
+      to node[:mongo][:ini_file]
+    end
+
+    bash "restart resque workers" do
+      user "root"
+      cwd "/tmp"
+      code <<-EOH
+      pear install -f pecl/mongo
+      true
+      EOH
+    end
+
+  when 'centos','redhat','fedora','amazon'
+    # do not know yet
+    php_pear 'pecl/mongo' do
+      action :install
+    end
+end
