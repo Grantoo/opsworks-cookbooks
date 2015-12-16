@@ -1,4 +1,8 @@
 node[:deploy].each do |application, deploy|
+  if deploy[:application_type] != 'php'
+    Chef::Log.debug("Skipping setup because application #{application} as it is not a php app")
+    next
+  end
   # adjust the log output folder to capture laravel logs
   case node[:platform]
     when 'ubuntu','debian'
@@ -16,6 +20,7 @@ node[:deploy].each do |application, deploy|
           echo #{node[:shared][:logs]}
           rm -rf logs
           ln -nfs "#{deploy[:deploy_to]}/current#{node[:shared][:logs]}" logs
+          chmod ugo+rw *
         EOH
       end
 
