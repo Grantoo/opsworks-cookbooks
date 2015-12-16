@@ -25,10 +25,10 @@ node[:deploy].each do |application, deploy|
         only_if 'service apache2 status', :user => 'root'
       end
       # support nginx php-fpm restart
-      service 'php5-fpm' do
-        action :restart
-        only_if 'service php5-fpm status', :user => 'root'
-      end
+      # service 'php5-fpm' do
+      #   action :restart
+      #   only_if 'service php5-fpm status', :user => 'root'
+      # end
 
     when 'centos','redhat','fedora','amazon'
       # do not know yet
