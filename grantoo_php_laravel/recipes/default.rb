@@ -10,6 +10,7 @@ node[:deploy].each do |application, deploy|
       Chef::Log.info("fix log directory")
       Chef::Log.info("in #{deploy[:deploy_to]}/current#{node[:laravel][:storage]}")
       Chef::Log.info("as #{deploy[:deploy_to]}/current#{node[:shared][:logs]} -> logs")
+      Chef::Log.info("and set all folders wide open for caching")
 
       bash "fix log directory" do
         user "root"
@@ -21,6 +22,7 @@ node[:deploy].each do |application, deploy|
           rm -rf logs
           ln -nfs "#{deploy[:deploy_to]}/current#{node[:shared][:logs]}" logs
           chmod ugo+rw *
+          chmod ugo+rw */* || true
         EOH
       end
 
