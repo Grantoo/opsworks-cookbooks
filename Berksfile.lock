@@ -1,7 +1,7 @@
 DEPENDENCIES
   goapp
     git: git://github.com/Grantoo/chef-goapp
-    revision: ea4460905d48a624ee29c8db580733d1a365ee0b
+    revision: a11d9f6c4535e81be0a0b39f26f73dc43d3e11b1
   golang
     git: git://github.com/Grantoo/chef-golang
     revision: f0e4094c793fe312dbaebc0106b5e1bfe4b11d88
