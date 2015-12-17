@@ -16,9 +16,6 @@ node[:deploy].each do |application, deploy|
         user "root"
         cwd "#{deploy[:deploy_to]}/current#{node[:laravel][:storage]}"
         code <<-EOH
-          echo fix logs to point to the right place
-          echo #{deploy[:deploy_to]}
-          echo #{node[:shared][:logs]}
           rm -rf logs
           ln -nfs "#{deploy[:deploy_to]}/current#{node[:shared][:logs]}" logs
           chmod ugo+rw *
