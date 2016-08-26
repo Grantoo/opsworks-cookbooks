@@ -8,6 +8,11 @@ local_custom_pkg_file = value_for_platform_family(
   'rhel' => "/tmp/custom_jvm#{::File.extname(node['opsworks_java']['jvm_pkg']['custom_pkg_location_url_rhel'])}"
 )
 
+execute "add-ppa-update" do
+  command "add-apt-repository ppa:openjdk-r/ppa && apt-get update -y"
+  action :run
+end
+
 package "remove old JVM package #{old_jvm_pkg_to_remove}" do
   package_name old_jvm_pkg_to_remove
   action :nothing
