@@ -18,6 +18,9 @@ JAVA_HOME="<%= "#{::File.expand_path(::File.join(`readlink -f /usr/bin/java`, '.
 # response time). If you use that option and you run Tomcat on a machine with
 # exactly one CPU chip that contains one or two cores, you should also add
 # the "-XX:+CMSIncrementalMode" option.
+
+JAVA_OPTS="${JAVA_OPTS} -Djava.awt.headless=true"
+
 JAVA_OPTS="<%= node['opsworks_java']['tomcat']['java_opts'] %>"
 
 # To enable remote debugging uncomment the following line.

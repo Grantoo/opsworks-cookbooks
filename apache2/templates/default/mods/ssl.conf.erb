@@ -66,7 +66,7 @@ SSLCipherSuite HIGH:MEDIUM:!ADH
 #   see http://httpd.apache.org/docs/2.2/ssl/ssl_howto.html.en#upgradeenc
 #SSLCipherSuite ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
 
-# enable only secure protocols: SSLv3 and TLSv1, but not SSLv2
-SSLProtocol all -SSLv2
+# enable only secure protocols: TLSv1, but not SSLv2 or SSLv3
+SSLProtocol all -SSLv2 -SSLv3
 
 </IfModule>
