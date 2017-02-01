@@ -1,8 +1,8 @@
 require "aws-sdk"
 
 server_descriptions = {"ds051207" => "default", "ds057781" => "users_db_session", "ds035931" => "dynamics_production" }
-latest_snapshots = {"default" => nil, "users_db_session" => nil}
-volume_devices = {"default" => "xvdm", "users_db_session" => "xvdn"}
+latest_snapshots = {"default" => nil, "users_db_session" => nil, "dynamics_production" => nil}
+volume_devices = {"default" => "xvdm", "users_db_session" => "xvdn", "dynamics_production" => "xvdo"}
 
 ::Aws.config.update({
   :region => 'us-east-1',
