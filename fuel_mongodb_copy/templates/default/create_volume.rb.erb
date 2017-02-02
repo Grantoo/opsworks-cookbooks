@@ -1,8 +1,8 @@
 require "aws-sdk"
 
-server_descriptions = {"ds051207" => "default", "ds057781" => "users_db_session", "ds035931" => "dynamics_production" }
-latest_snapshots = {"default" => nil, "users_db_session" => nil, "dynamics_production" => nil}
-volume_devices = {"default" => "xvdm", "users_db_session" => "xvdn", "dynamics_production" => "xvdo"}
+server_descriptions = {"ds051207" => "default", "ds057781" => "users_db_session"} #, "ds035931" => "dynamics_production" }
+latest_snapshots = {"default" => nil, "users_db_session" => nil} #, "dynamics_production" => nil}
+volume_devices = {"default" => "xvdm", "users_db_session" => "xvdn"} #, "dynamics_production" => "xvdo"}
 
 ::Aws.config.update({
   :region => 'us-east-1',
@@ -28,6 +28,10 @@ end
 
 availability_zone = 'us-east-1b'
 latest_snapshots.each_pair do |key, snapshot|
+  if snapshot.nil?
+    puts "no snapshot for key:#{key}"
+    next
+  end
   snapshot_id = snapshot.id
   ec2_client = ::Aws::EC2::Client.new({:region => 'us-east-1'})
   params = {
@@ -46,6 +50,12 @@ latest_snapshots.each_pair do |key, snapshot|
     :instance_id => instance_id,
     :device => volume_devices[key],
   }
-  response = ec2_client.attach_volume(params)
+  puts "attach with:",params
+  begin
+    response = ec2_client.attach_volume(params)
+    puts "success:", response
+  rescue
+    puts "fail:", params
+  end
   db_identifier = key
 end
