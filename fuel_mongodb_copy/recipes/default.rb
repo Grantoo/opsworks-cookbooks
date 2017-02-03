@@ -35,6 +35,9 @@ bash "create_volume" do
   EOH
 end
 
+# allow create volume to finish
+sleep(15)
+
 bash "mount_devices" do
   user 'root'
   code <<-EOH
