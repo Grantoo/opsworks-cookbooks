@@ -35,12 +35,10 @@ bash "create_volume" do
   EOH
 end
 
-# allow create volume to finish
-sleep(15)
-
 bash "mount_devices" do
   user 'root'
   code <<-EOH
+  sleep 30
   mkdir -p /mnt/mongodb/default
   mount /dev/xvdm /mnt/mongodb/default/
   
