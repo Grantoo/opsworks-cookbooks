@@ -11,13 +11,18 @@ case node[:platform]
       to node[:mongo][:ini_file]
     end
 
-    bash "restart resque workers" do
+    bash "install pecl/mongo" do
       user "root"
       cwd "/tmp"
       code <<-EOH
       pear install -f pecl/mongo
       true
       EOH
+    end
+
+    service 'apache2' do
+      action :restart
+      only_if 'service apache2 status', :user => 'root'
     end
 
   when 'centos','redhat','fedora','amazon'
