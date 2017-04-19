@@ -1,4 +1,4 @@
-<VirtualHost *:80>
+<VirtualHost <% node[:apache][:listen_ports].each do |port| %> *:<%= port %> <% end %> >
   ServerName 127.0.0.1
   ServerAdmin <%= node[:apache][:contact] %>
 
