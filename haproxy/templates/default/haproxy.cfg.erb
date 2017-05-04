@@ -64,6 +64,34 @@ backend rails_app_servers
   <% end -%>
 <% end -%>
 
+
+
+    #
+    #
+    # --------------------------------------------------------------------------------------
+    # Rails backends:
+    <% node[:haproxy][:rails_backends].each do |backend| -%>
+        # <%= backend.inspect %>
+    <% end -%>
+    #
+    #
+    # --------------------------------------------------------------------------------------
+    # PHP backends:
+    <% node[:haproxy][:php_backends].each do |backend| -%>
+        # <%= backend.inspect %>
+    <% end -%>
+    #
+    #
+    # --------------------------------------------------------------------------------------
+    # Go backends:
+    <% node[:haproxy][:goapp_backends].each do |backend| -%>
+        # <%= backend.inspect %>
+    <% end -%>
+    #
+    #
+    #
+
+
 <% if !node[:haproxy][:rails_backends].empty? -%>
 backend rails_app_servers_ssl
   mode tcp
