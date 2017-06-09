@@ -16,6 +16,7 @@ case node[:platform]
       cwd "/tmp"
       code <<-EOH
       pear install -f pecl/mongo
+      pecl install mongo
       true
       EOH
     end
