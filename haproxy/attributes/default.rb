@@ -58,6 +58,23 @@ default[:haproxy][:maxcon_factor_java_app] = 10
 default[:haproxy][:maxcon_factor_java_app_ssl] = 10
 default[:haproxy][:maxcon_factor_static] = 15
 default[:haproxy][:maxcon_factor_static_ssl] = 15
+default[:haproxy][:maxcon_factor_goapp_app] = 10
+default[:haproxy][:maxcon_factor_goapp_app_ssl] = 10
+
+# default ports
+default[:haproxy][:port_rails_app] = 80
+default[:haproxy][:port_rails_app_ssl] = 443
+default[:haproxy][:port_php_app] = 80
+default[:haproxy][:port_php_app_ssl] = 443
+default[:haproxy][:port_nodejs_app] = 80
+default[:haproxy][:port_nodejs_app_ssl] = 443
+default[:haproxy][:port_java_app] = 80
+default[:haproxy][:port_java_app_ssl] = 443
+default[:haproxy][:port_static] = 80
+default[:haproxy][:port_static_ssl] = 443
+default[:haproxy][:port_goapp] = 80
+default[:haproxy][:port_goapp_ssl] = 443
+
 
 def random_haproxy_pw
   rand_array = []
