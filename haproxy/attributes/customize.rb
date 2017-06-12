@@ -17,3 +17,16 @@ normal[:haproxy][:goapp_backends] = []
 normal[:haproxy][:maxcon_factor_goapp_app] = 10
 normal[:haproxy][:maxcon_factor_goapp_app_ssl] = 10
 
+# default ports
+normal[:haproxy][:port_rails_app] = 80
+normal[:haproxy][:port_rails_app_ssl] = 443
+normal[:haproxy][:port_php_app] = 80
+normal[:haproxy][:port_php_app_ssl] = 443
+normal[:haproxy][:port_nodejs_app] = 80
+normal[:haproxy][:port_nodejs_app_ssl] = 443
+normal[:haproxy][:port_java_app] = 80
+normal[:haproxy][:port_java_app_ssl] = 443
+normal[:haproxy][:port_static] = 80
+normal[:haproxy][:port_static_ssl] = 443
+normal[:haproxy][:port_goapp] = 80
+normal[:haproxy][:port_goapp_ssl] = 443
