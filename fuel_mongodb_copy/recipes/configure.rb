@@ -8,5 +8,11 @@ template File.join("etc", "mongod.conf") do
       :repl_set => node[:mongodb][:config][:replSet],
       :dbpath => node[:mongodb][:config][:dbpath],
   )
-  notifies :restart, resources(:service => "mongod")
+end
+
+bash "restart_mongod" do
+  user 'root'
+  code <<-EOH
+  initctl restart mongod
+  EOH
 end

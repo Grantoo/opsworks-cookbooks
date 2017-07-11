@@ -5,7 +5,7 @@
 
 # Where and how to store data.
 storage:
-  dbPath: <%= @dbpath %>
+  dbPath: <%= @dbpath %>/data
   journal:
     enabled: true
 #  engine:
@@ -16,7 +16,7 @@ storage:
 systemLog:
   destination: file
   logAppend: true
-  path: /var/log/mongodb/mongod.log
+  path: <%= @dbpath %>/log/mongod.log
 
 # network interfaces
 net:
@@ -26,7 +26,8 @@ net:
 
 #processManagement:
 
-#security:
+security:
+  keyFile: <%= @dbpath %>/secrets/keyfile
 
 #operationProfiling:
 
