@@ -8,9 +8,8 @@ storage:
   dbPath: <%= @dbpath %>/data
   journal:
     enabled: true
-#  engine:
+  engine: wiredTiger
 #  mmapv1:
-  wiredTiger: true
 
 # where to write logging data.
 systemLog:

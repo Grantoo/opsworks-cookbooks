@@ -1,6 +1,6 @@
 
 template File.join("etc", "mongod.conf") do
-  mode 0700
+  mode 0744
   source "mongod.conf.erb"
   variables(
       :port => node[:mongodb][:config][:port],
