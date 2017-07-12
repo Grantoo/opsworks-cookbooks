@@ -31,5 +31,5 @@ file '/mnt/mongodb/secrets/keyfile' do
   owner 'mongodb'
   group 'mongodb'
   mode '0600'
-  action :create
+  action :create_if_missing
 end
