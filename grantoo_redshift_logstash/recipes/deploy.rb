@@ -33,4 +33,11 @@ node[:deploy].each do |application, deploy|
     group "logstash"
     action :run
   end
+
+  bash "logstash-plugins" do
+    code "/opt/logstash/agent/bin/plugin install contrib"
+    user "logstash"
+    group "logstash"
+    action :run
+  end
 end
