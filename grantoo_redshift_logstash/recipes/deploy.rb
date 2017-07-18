@@ -35,7 +35,7 @@ node[:deploy].each do |application, deploy|
   end
 
   bash "symlink-certs" do
-    code "ln -nsf ~ubuntu/redshift-pipeline/certificates /opt/logstash/certificates"
+    code "ln -nsf ~ubuntu/redshift-pipeline/certificates /opt/logstash/agent/certificates"
     user "logstash"
     group "logstash"
     action :run
