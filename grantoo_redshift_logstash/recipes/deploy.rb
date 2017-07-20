@@ -47,4 +47,11 @@ node[:deploy].each do |application, deploy|
     group "logstash"
     action :run
   end
+
+  bash "patch-logstash-outputs-google_bigquery" do
+    code "patch /opt/logstash/agent/lib/logstash/outputs/google_bigquery.rb ~ubuntu/redshift-pipeline/logstash/patch/logstash-outputs-google_bigquery.patch"
+    user "logstash"
+    group "logstash"
+    action :run
+  end
 end
