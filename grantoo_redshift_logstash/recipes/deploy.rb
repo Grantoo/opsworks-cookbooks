@@ -28,7 +28,7 @@ node[:deploy].each do |application, deploy|
   end
 
   bash "symlink-conf" do
-    code "ln -nsf ~ubuntu/redshift-pipeline/logstash/confs/100_input_s3.conf ~ubuntu/redshift-pipeline/logstash/confs/200_filters.conf ~ubuntu/redshift-pipeline/logstash/confs/300_output_csv.conf /opt/logstash/agent/etc/conf.d/"
+    code "ln -nsf ~ubuntu/redshift-pipeline/logstash/confs/100_input_s3.conf ~ubuntu/redshift-pipeline/logstash/confs/200_filters.conf ~ubuntu/redshift-pipeline/logstash/confs/300_output_bigquery.conf /opt/logstash/agent/etc/conf.d/"
     user "logstash"
     group "logstash"
     action :run
