@@ -14,6 +14,7 @@ DEPENDENCIES
   monit
     git: git://github.com/Grantoo/chef-monit
     revision: ca251cf57eb09973f272be538b3c85110fdadac9
+  td-agent
 
 GRAPH
   7-zip (1.0.2)
@@ -74,6 +75,9 @@ GRAPH
     build-essential (>= 0.0.0)
     yum (~> 3.0)
     yum-epel (>= 0.0.0)
+  td-agent (2.5.0)
+    apt (>= 0.0.0)
+    yum (>= 0.0.0)
   windows (1.36.1)
     chef_handler (>= 0.0.0)
   xml (1.2.9)
