@@ -23,6 +23,7 @@ include conf.d/*.conf
 <match td.*.*>
   type tdlog
   apikey <%= node['td_agent']['api_key'] %>
+  apisecret <%= node['td_agent']['api_secret'] %>
 
   auto_create_table
   buffer_type file
