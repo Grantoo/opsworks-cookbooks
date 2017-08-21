@@ -1,73 +1,797 @@
+#-------------------------------------------------------------------------------
+# Unix Input Source
 #
-# This file overrides the Treasure Data config file.
+# Retrieve records from a unix domain socket. The socket packet schema
+# (protocol) is the same as in used by the Forward Input Plugin. For more
+# information on the protocol, please refer to:
 #
-
-<% if node['td_agent']['includes'] %>
-<% if @major_version.to_i < 2 %>
-include conf.d/*.conf
-<% else %>
-@include conf.d/*.conf
-<% end %>
-<% end %>
-<% if node['td_agent']['default_config'] %>
-####
-## Output descriptions:
-##
-
-# Treasure Data (http://www.treasure-data.com/) provides cloud based data
-# analytics platform, which easily stores and processes data from td-agent.
-# FREE plan is also provided.
-# @see http://docs.fluentd.org/articles/http-to-td
+# https://docs.fluentd.org/v0.12/articles/in_forward#protocol
 #
-# This section matches events whose tag is td.DATABASE.TABLE
-<match td.*.*>
-  type tdlog
-  apikey <%= node['td_agent']['api_key'] %>
-  apisecret <%= node['td_agent']['api_secret'] %>
+# Fields:
+#
+#     @type (required)
+#
+#         unix
+#
+#     path (required)
+#
+#         Filesystem location of where the server should create the unix socket.
+#
+#     backlog
+#
+#         Maximum length of the queue for pending connections. By default the
+#         backlog is set at 1024 connections.
+#
+#-------------------------------------------------------------------------------
+<source>
+    @type unix
+    path /tmp/radar_analytics.socket
+</source>
 
-  auto_create_table
-  buffer_type file
-  buffer_path /var/log/td-agent/buffer/td
+
+#-------------------------------------------------------------------------------
+# Grep Filter
+#
+# Filters records based on the values of specified keys. Key values are matched
+# using a specified regex pattern.
+#
+# Each pattern used for the inclusion of a record must be written under a
+# <regexp> tag. For example:
+#
+#     <regexp>
+#         key hostname
+#         pattern ^allow\.this-site\.com$
+#     </regexp>
+#
+# passes through all records with a hostname key value matching the pattern.
+#
+# Patterns for the exclusion of a record must be written under an <exclude> tag.
+# For example:
+#
+#     <exclude>
+#         key hostname
+#         pattern ^block\.this-site\.com$
+#     </exclude>
+#
+# drops all records with a hostname key value matching the pattern.
+#
+#-------------------------------------------------------------------------------
+<filter *>
+    @type grep
+    <exclude>
+        key gameId
+        pattern ^53bdb8283158733fb201b096$|^51f7ec7194e77627cb00057b$
+    </exclude>
+</filter>
+
+<filter **.redshift.event>
+    @type grep
+    <regexp>
+        key eventName
+        pattern "^analytics loaded$|^app run$|^active user$|^converting user$|^harvesting user$|^launch$|^launch with result$|^match started$|^match ended$|^match expired$|^round started$|^round ended$|^sdk ready$|^eventeligible$|^activityparticipation$|^activityprogress$|^activitycompletion$|^eventjoin$|^ruleachievement$"
+    </regexp>
+</filter>
+
+
+#-------------------------------------------------------------------------------
+# Tag Rewrite Output Filter
+#
+# Rewrites the record tag given a field value regex match which then re-emits
+# the record (i.e. re-processed through filters and output plugins).
+#
+# Fields:
+#
+#     @type (required)
+#
+#         rewrite_tag_filter
+#
+#     rewriteruleN (required at least one)
+#
+#         Tag rewrite rule to apply to matching a record key/value.
+#
+#             e.g. rewriterule<num> <key> <regex_pattern> <new_tag>
+#
+#         It works with the order <num> ascending, regexp matching
+#         <regex_pattern> for the values of <key> from each record, re-emit with
+#         <new_tag>.
+#
+#     captialize_regex_backreference
+#
+#         Capitalizes the first letter of each backreference in a match
+#
+#     hostname_command
+#
+#         Overrides the command use to retrieve the hostname that is used for the
+#         hostname placeholder. By default the command is `hostname`.
+#
+#-------------------------------------------------------------------------------
+<match *>
+    @type copy
+    deep_copy true
+    <store>
+        @type rewrite_tag_filter
+        rewriterule1 eventName .+ ${tag}.s3.event
+    </store>
+    <store>
+        @type rewrite_tag_filter
+        rewriterule1 eventName ^errors$ ${tag}.redshift.error
+        rewriterule2 eventName ^warnings$ ${tag}.redshift.warning
+        rewriterule3 eventName .+ ${tag}.redshift.event
+    </store>
 </match>
 
-## match tag=debug.** and dump to console
-<match debug.**>
-  type stdout
+
+#-------------------------------------------------------------------------------
+# Amazon S3 Output Filter
+#
+# Buffers records locally to be batch uploaded to AWS S3.
+#
+# Fields:
+#
+#     @type
+#
+#         s3
+#
+#     aws_key_id (required / optional)
+#
+#         The AWS access key ID. This field is required when the Fluentd agent
+#         is not running on an EC2 instance with an IAM Instance Profile.
+#
+#     aws_sec_key (required / optional)
+#
+#         The AWS secret key. This field is required when the Fluentd agent is
+#         not running on an EC2 instance with an IAM Instance Profile.
+#
+#     s3_bucket (required)
+#
+#         The Amazon S3 bucket name to upload the buffered record logs to.
+#
+#     buffer_path (required / optional)
+#
+#         The local path prefix of the buffered record logs. This field is not
+#         required if the buffer_type field specifies a 'memory' buffer type.
+#
+#     s3_region
+#
+#         The Amazon S3 region name. Please select the appropriate region name
+#         and confirm that your bucket has been created in the correct region.
+#         Here are some examples:
+#
+#             * us-east-1
+#             * us-west-1
+#             * eu-central-1
+#
+#         The full list can be found in the official AWS documentation
+#         (http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region).
+#
+#     s3_endpoint
+#
+#         Deprecated because the latest AWS SDK ignores this option. Please use
+#         the s3_region field instead.
+#
+#     format
+#
+#         The format of the created S3 object. The default is out_file. For more
+#         information on available formats, please refer to:
+#
+#             https://docs.fluentd.org/v0.12/articles/formatter-plugin-overview#list-of-built-in-formatters
+#
+#     time_format
+#
+#         Format of the time written in the files. The default format is
+#         ISO-8601.
+#
+#     path
+#
+#         The path prefix of the created S3 object. The default is ''
+#         (no prefix) which places the object at the root of the bucket.
+#
+#     s3_object_key_format
+#
+#         The full S3 path format of the created S3 object. The default value is
+#
+#             %{path}%{time_slice}_%{index}.%{file_extension}
+#
+#             * path - the value of the path field above
+#             * time_slice - the time string as formatted by the
+#                 time_slice_format field
+#             * index - the index for the given path, incremented per buffer
+#                 flush
+#             * file_extension - as determined by the store_as field
+#
+#         which is interpolated to the actual path (e.g. Ruby's variable
+#         interpolation).
+#
+#     utc
+#
+#         Uses UTC for path formatting. The default is whatever localtime is
+#         set to.
+#
+#     store_as
+#
+#         The compression type. The default is 'gzip', but you can also choose
+#         'lzo', 'json', or 'txt'.
+#
+#     proxy_uri
+#
+#         The proxy URL. The default is nil.
+#
+#     ssl_verify_peer
+#
+#         Verify the SSL certificate of the endpoint. The default is true. Set
+#         to false when you want to ignore the endpoint SSL certificate.
+#
+#     time_slice_format
+#
+#         The time format used as part of the S3 object file name. The following
+#         characters are replaced with actual values when the file is created:
+#
+#             %Y - year including the century (at least 4 digits)
+#             %m - month of the year (01..12)
+#             %d - day of the month (01..31)
+#             %H - hour of the day (00..23)
+#             %M - minute of the hour (00..59)
+#             %S - second of the minute (00..59)
+#
+#         The default format is %Y%m%d%H, which creates one file per hour.
+#
+#     time_slice_wait
+#
+#         The amount of time that Fluentd will wait for records to arrive
+#         before uploading the buffered record logs to S3. This is used to
+#         account for delays in records arriving to the Fluentd node. The
+#         default wait time is 10 minutes.
+#
+#     buffer_type
+#
+#         The type of buffer to use for caching the record logs before
+#         uploading to S3. The default buffer type is 'file', but the 'memory'
+#         buffer type can be chosen as well. In that case the logs are cached
+#         into memory and any logs that can't be written quickly are deleted
+#         when Fluentd is shut down. If the 'file' buffer type is used then the
+#         buffer_path field is required.
+#
+#     buffer_queue_limit
+#
+#         Maximum size of the buffer chunk queue. For S3 output a buffer chunk is
+#         an S3 object. The buffer queue refers to to number of records in that
+#         object. If the limit of the queue is reached, then the oldest chunks
+#         are immediately written out to S3 as new chunks are added. The default
+#         size limit for the queue is 64 chunks. This field is used in
+#         conjunction with the buffer_chunk_limit field to determine how the
+#         buffer chunk queue is filled. For more information on the buffer queue,
+#         please refer to:
+#
+#         https://docs.fluentd.org/v0.12/articles/buffer-plugin-overview
+#
+#     buffer_chunk_limit
+#
+#         Maximum size of each chunk written to the buffer chunk queue. For S3
+#         output a buffer chunk is an S3 object. The buffer queue refers to the
+#         number of records in that object. If the chunk limit is reached, then
+#         a new chunk is started and added to the buffer chunk queue. The default
+#         chunk size is 8m. The suffixes 'k' (kilobyte), 'm' (megabyte), and 'g'
+#         (gigabyte) are used to reference the chunk size units. This field is
+#         unsed in conjunction with the buffer_queue_limit field to determine
+#         how the buffer chunk queue is filled. For more information on the
+#         buffer queue, please refer to:
+#
+#         https://docs.fluentd.org/v0.12/articles/buffer-plugin-overview
+#
+#     flush_interval
+#
+#         The interval between data flushes. The default is 60s. The suffixes
+#         's' (seconds), 'm' (minutes), and 'h' (hours) are used to reference
+#         the interval time units.
+#
+#     flush_at_shutdown
+#
+#         If set to true, Fluentd waits for the buffer to flush completely
+#         before completing the shutdown process. By default this is set to
+#         true for a 'memory' buffer type, and false for a 'file' buffer type.
+#
+#     retry_wait
+#
+#         The retry wait time (in seconds) to start with when retrying to write
+#         the S3 object. The default retry wait is 1.0 seconds. The wait time
+#         doubles (with +/- 12.5% randomness) for every retry. This field is
+#         used in conjunction with the max_retry_wait field to define an
+#         exponential retry back-off strategy.
+#
+#     max_retry_wait
+#
+#         The maximum time (in seconds) to wait before retrying to write the S3
+#         object. The default maximum retry wait is unset (no limit). However, in
+#         the default configuration, the last retry waits for approximately
+#         131072 seconds, which is roughly 36 hours. This field is used in
+#         conjunction with the retry_wait field to define an exponential retry
+#         back-off stratgy.
+#
+#     retry_limit
+#
+#         The limit on the number of retries before buffered data is discarded.
+#         The default retry limit is 17. If the limit is reached, the buffered
+#         data is discarded and the retry interval is reset to its initial
+#         value as defined by the retry_wait field.
+#
+#     disable_retry_limit
+#
+#         Disables the retry limit to allow the system to continue to retry. The
+#         default value is false (not disabled).
+#
+#     num_threads
+#
+#         The number of threads used to flush the buffer with, where each thread
+#         is used to write out a buffer chunk. The default is 1 thread.
+#
+#     slow_flush_log_threshold
+#
+#         Same as Buffered Output but the default value is changed to 40.0
+#         seconds.
+#
+#-------------------------------------------------------------------------------
+<match **.s3.event>
+    @type s3
+    aws_key_id <%= node['td_agent']['aws']['api_access_key'] %>
+    aws_sec_key <%= node['td_agent']['aws']['api_secret_key'] %>
+    s3_bucket <%= node['td_agent']['aws']['s3']['bucket'] %>
+    buffer_path /tmp/fluentd
+    s3_region <%= node['td_agent']['aws']['s3']['region'] %>
+    format json
+    path radar
+    s3_object_key_format "%{path}/%{time_slice}_#{Socket.gethostname}_%{index}%{hex_random}.%{file_extension}"
+    utc
+    store_as json
+    time_slice_format %Y/%m/%d/%H/%Y%m%d%H
+    buffer_queue_limit <%= node['td_agent']['buffer_queue_limit'] %>
+    buffer_chunk_limit <%= node['td_agent']['buffer_chunk_limit'] %>
+    flush_interval <%= node['td_agent']['flush_interval'] %>
+    flush_at_shutdown <%= node['td_agent']['flush_at_shutdown'] %>
 </match>
 
-####
-## Source descriptions:
-##
 
-## built-in TCP input
-## @see http://docs.fluentd.org/articles/in_forward
-<source>
-  type forward
-  port <%= node['td_agent']['in_forward']['port'] %>
-  bind <%= node['td_agent']['in_forward']['bind'] %>
-</source>
+#-------------------------------------------------------------------------------
+# Record Modifier Filter
+#
+# Modifies the record keys and values. Directives that add or modify record keys
+# must be placed under a <record> tag. For example:
+#
+#     <filter>
+#         <record>
+#             new_key ${record['old_key']}    # creates a new_key with the value
+#         </record>                           # of the old_key which is then
+#         remove_keys old_key                 # removed, effectively renaming
+#     </filter>                               # old_key to new_key
+#
+# Fields:
+#
+#     @type (required)
+#
+#         record_modifier
+#
+#     char_encoding
+#
+#         Specifies the character encoding to use for the record. In the case
+#         where the character encoding is specified as <from>:<to>, the
+#         character encoding of the record is converted from <from> to <to>.
+#
+#     remove_keys
+#
+#         Comma-separated list of record keys to remove. This field is mutually
+#         exclusive with the whitelist_keys field.
+#
+#     whitelist_keys
+#
+#         Comma-separated list of record keys to allow. This field is mutually
+#         exclusive with the remove_keys field.
+#
+#-------------------------------------------------------------------------------
+<filter **.redshift.error>
+    @type record_modifier
+    <record>
+        error_name ${record['errorName']}
+        error_message ${record['errorMessage']}
+        error_data ${record['errorData']}
+    </record>
+    remove_keys errorName,errorMessage,errorData
+</filter>
 
-## built-in UNIX socket input
-#<source>
-#  type unix
-#</source>
+<filter **.redshift.warning>
+    @type record_modifier
+    <record>
+        warning_name ${record['warningName']}
+        warning_message ${record['warningMessage']}
+        warning_data ${record['warningData']}
+    </record>
+    remove_keys warningName,warningMessage,warningData
+</filter>
 
-<% if node["td_agent"]["in_http"]["enable_api"] %>
-# HTTP input
-# POST http://localhost:8888/<tag>?json=<json>
-# POST http://localhost:8888/td.myapp.login?json={"user"%3A"me"}
-# @see http://docs.fluentd.org/articles/in_http
-<source>
-  type http
-  port <%= node['td_agent']['in_http']['port'] %>
-  bind <%= node['td_agent']['in_http']['bind'] %>
-</source>
-<% end %>
+<filter **.redshift.{error,warning,event}>
+    @type record_modifier
+    <record>
+        timestamp ${record['eventTime']}
+        event_name ${record['eventName']}
+        game_identifier ${record['gameId']}
+        game_name ${record['gameName']}
+        user_analytics_identifier ${record['userAnalyticsId']}
+        continent_code ${record['continentCode']}
+        country_code2 ${record['countryCode2']}
+        country_name ${record['countryName']}
+        city_name ${record['cityName']}
+        region_name ${record['regionName']}
+        os ${record['osType']}
+        os_version ${record['osVersion']}
+        user_created_at ${record['userCreatedAt']}
+        user_days_since_created ${record['userDaysSinceCreated']}
+        user_type ${record['userType']}
+        analytics_identifier ${record['analyticsId']}
+        received_at ${record['receivedTime']}
+    </record>
+    remove_keys eventTime,eventName,gameId,gameName,userAnalyticsId,continentCode,countryCode2,countryName,cityName,regionName,osType,osVersion,userCreatedAt,userDaysSinceCreated,userType,analyticsId,receivedTime
+</filter>
 
-## live debugging agent
-<source>
-  type debug_agent
-  bind 127.0.0.1
-  port 24230
-</source>
-<% end %>
+
+#-------------------------------------------------------------------------------
+# Record Transformer Filter
+#
+# Transforms/mutates incoming event streams. This is a more versitile filter
+# than the record_modifier filter. Directives that add or modify record keys
+# must be placed under a <record> tag. For example:
+#
+#     <filter>
+#         <record>
+#             new_key ${record['old_key']}    # creates a new_key with the value
+#         </record>                           # of the old_key which is then
+#         remove_keys old_key                 # removed, effectively renaming
+#     </filter>                               # old_key to new_key
+#
+# Fields:
+#
+#     @type (required)
+#
+#         record_transformer
+#
+#     enable_ruby
+#
+#         When set to true, the full Ruby syntax is enabled in the ${...}
+#         expression. The default value is false.
+#
+#     auto_typecast
+#
+#         Automatically cast the field types. Currently this feature is only
+#         effective for field values comprised of a single placeholder.
+#
+#             Effective examples:
+#
+#                 foo ${record['foo']}
+#
+#             Ineffective examples:
+#
+#                 foo ${record['foo']}${record['bar']}
+#                 foo ${record['foo']}bar
+#                 foo 1
+#
+#         The default value is false.
+#
+#     renew_record
+#
+#         When set to true, a new empty hash is transformed / mutated instead of
+#         modifying the incoming record. The default value is false.
+#
+#     renew_time_key
+#
+#         The record key whose value should be used to override the event time
+#         with.
+#
+#     keep_keys
+#
+#         Comma-separated list of record keys keep in the record. All other keys
+#         will be removed. This field is only effective if the renew_record
+#         field is set to true.
+#
+#     remove_keys
+#
+#         Comma-separated list of record keys to remove from the record. All
+#         other keys will be kept.
+#
+#-------------------------------------------------------------------------------
+<filter **.redshift.{error,warning,event}>
+    @type record_transformer
+    renew_record
+    enable_ruby
+    <record>
+        log ${record.to_json}
+    </record>
+    keep_keys log
+</filter>
+
+
+#-------------------------------------------------------------------------------
+# Amazon Redshift Output Filter
+#
+# Buffers records to S3 to be loaded into AWS Redshift
+#
+# Fields:
+#
+#     @type (required)
+#
+#         redshift
+#
+#     aws_key_id
+#
+#         The AWS access key ID for accessing the S3 bucket containing the
+#         record logs to load into the Amazon Redshift database table.
+#
+#     aws_sec_key
+#
+#         The AWS secret key ID for accessing the S3 bucket containing the
+#         record logs to load into the Amazon Redshift database table.
+#
+#     aws_iam_role
+#
+#         The AWS Identity and Access Management role name to use for accessing
+#         the S3 bucket of record logs in order to load them into the Amazon
+#         Redshift database table.
+#
+#     s3_bucket (required)
+#
+#         The Amazon S3 bucket name to upload the buffered record logs to. The S3
+#         bucket name must be in the same region as the Redshift cluster.
+#
+#     s3_endpoint
+#
+#         The Amazone S3 endpoint for the region where the S3 bucket to upload
+#         the record logs to lives. For a list of valid region end-points,
+#         please refer to:
+#
+#             http://docs.aws.amazon.com/general/latest/gr/rande.html#s3_region
+#
+#     path (required)
+#
+#         The path prefix of the created S3 object. The default is ''
+#         (no prefix) which places the object at the root of the bucket.
+#
+#     timestamp_key_format
+#
+#         The timestamp format used to derive the key used for defining the full
+#         Amazon S3 object path for each record log chunk.
+#
+#         The following characters are replaced with actual values when the file
+#         is created:
+#
+#             %Y - year including the century (at least 4 digits)
+#             %m - month of the year (01..12)
+#             %d - day of the month (01..31)
+#             %H - hour of the day (00..23)
+#             %M - minute of the hour (00..59)
+#             %S - second of the minute (00..59)
+#
+#         The default timestamp key format is:
+#
+#             year=%Y/month=%m/day=%d/hour=%H/%Y%m%d-%H%M
+#
+#     s3_server_side_encryption
+#
+#         The S3 server-side encryption used when creating the S3 object.
+#         Currently only aes256 is supported.
+#
+#     redshift_host (required)
+#
+#         The end-point of the Amazon Redshift cluster to use.
+#
+#     redshift_port (required)
+#
+#         The port number of the Amazon Redshift cluster service.
+#
+#     redshift_dbname (required)
+#
+#         The name of the database to use in the Amazon Redshift cluster.
+#
+#     redshift_user (required)
+#
+#         The user to access the Amazon Redshift database.
+#
+#     redshift_password (required)
+#
+#         The password of the user accessing the Amazon Redshift database.
+#
+#     redshift_tablename (required)
+#
+#         The name of the table that will store the data on the Amazon
+#         Redshift database.
+#
+#     redshift_schemename
+#
+#         The name of the schema in the database to which table will store the
+#         data on the Amazon Redshift cluster.
+#
+#     redshift_connect_timeout
+#
+#         The maximum time to wait for a connection to the Amazon
+#         Redshift cluster.
+#
+#     redshift_copy_columns
+#
+#         Comma separated list of record fields to map to the Amazon Redshift
+#         database table columns. The record field names must match the table
+#         column names.
+#
+#     file_type
+#
+#         The format of the source data. It can be one of the following:
+#
+#             csv
+#             tsv
+#             msgpack
+#             json
+#
+#     delimiter
+#
+#         The column delimiter of the source data. This field is ignored if the
+#         file_type is specified.
+#
+#     maintenance_file_path
+#
+#         Path of the maintenance file. The plugin will skip processing and
+#         keep retrying while the maintenance file exists in this file path. To
+#         avoid data loss due to too many retries caused by long maintenance,
+#         setting retry_limit and retry_wait is recommended.
+#
+#     buffer_type
+#
+#         The type of buffer to use for caching the record logs before
+#         uploading to S3. The default buffer type is 'file', but the 'memory'
+#         buffer type can be chosen as well. In that case the logs are cached
+#         into memory and any logs that can't be written quickly are deleted
+#         when Fluentd is shut down. If the 'file' buffer type is used then the
+#         buffer_path field is required.
+#
+#     buffer_path
+#
+#         The local path prefix of the buffered record logs. This field is not
+#         required if the buffer_type field specifies a 'memory' buffer type.
+#
+#     utc
+#
+#         Uses UTC for the timestamp_key_format. The default is whatever
+#         localtime is set to.
+#
+#     buffer_queue_limit
+#
+#         Maximum size of the buffer chunk queue. For S3 output a buffer chunk is
+#         an S3 object. The buffer queue refers to to number of records in that
+#         object. If the limit of the queue is reached, then the oldest chunks
+#         are immediately written out to S3 as new chunks are added. The default
+#         size limit for the queue is 64 chunks. This field is used in
+#         conjunction with the buffer_chunk_limit field to determine how the
+#         buffer chunk queue is filled. For more information on the buffer queue,
+#         please refer to:
+#
+#         https://docs.fluentd.org/v0.12/articles/buffer-plugin-overview
+#
+#     buffer_chunk_limit
+#
+#         Maximum size of each chunk written to the buffer chunk queue. For S3
+#         output a buffer chunk is an S3 object. The buffer queue refers to the
+#         number of records in that object. If the chunk limit is reached, then
+#         a new chunk is started and added to the buffer chunk queue. The default
+#         chunk size is 8m. The suffixes 'k' (kilobyte), 'm' (megabyte), and 'g'
+#         (gigabyte) are used to reference the chunk size units. This field is
+#         unsed in conjunction with the buffer_queue_limit field to determine
+#         how the buffer chunk queue is filled. For more information on the
+#         buffer queue, please refer to:
+#
+#         https://docs.fluentd.org/v0.12/articles/buffer-plugin-overview
+#
+#     flush_interval
+#
+#         The interval between data flushes. The default is 60s. The suffixes
+#         's' (seconds), 'm' (minutes), and 'h' (hours) are used to reference
+#         the interval time units.
+#
+#     retry_wait
+#
+#         The retry wait time (in seconds) to start with when retrying to write
+#         the S3 object. The default retry wait is 1.0 seconds. The wait time
+#         doubles (with +/- 12.5% randomness) for every retry. This field is
+#         used in conjunction with the max_retry_wait field to define an
+#         exponential retry back-off strategy.
+#
+#     max_retry_wait
+#
+#         The maximum time (in seconds) to wait before retrying to write the S3
+#         object. The default maximum retry wait is unset (no limit). However, in
+#         the default configuration, the last retry waits for approximately
+#         131072 seconds, which is roughly 36 hours. This field is used in
+#         conjunction with the retry_wait field to define an exponential retry
+#         back-off stratgy.
+#
+#     retry_limit
+#
+#         The limit on the number of retries before buffered data is discarded.
+#         The default retry limit is 17. If the limit is reached, the buffered
+#         data is discarded and the retry interval is reset to its initial
+#         value as defined by the retry_wait field.
+#
+#     disable_retry_limit
+#
+#         Disables the retry limit to allow the system to continue to retry. The
+#         default value is false (not disabled).
+#
+#     num_threads
+#
+#         The number of threads used to flush the buffer with, where each thread
+#         is used to write out a buffer chunk. The default is 1 thread.
+#
+#     slow_flush_log_threshold
+#
+#         Same as Buffered Output but the default value is changed to 40.0
+#         seconds.
+#
+#
+#-------------------------------------------------------------------------------
+<match **.redshift.error>
+    @type redshift
+    aws_key_id <%= node['td_agent']['aws']['api_access_key'] %>
+    aws_sec_key <%= node['td_agent']['aws']['api_secret_key'] %>
+    s3_bucket <%= node['td_agent']['aws']['s3']['bucket'] %>
+    s3_endpoint <%= node['td_agent']['aws']['s3']['endpoint'] %>
+    path redshift
+    timestamp_key_format "%Y/%m/%d/%H/%Y%m%d%H_errors_#{Socket.gethostname}"
+    redshift_host <%= node['td_agent']['aws']['redshift']['host'] %>
+    redshift_port <%= node['td_agent']['aws']['redshift']['port'] %>
+    redshift_dbname <%= node['td_agent']['aws']['redshift']['database'] %>
+    redshift_user <%= node['td_agent']['aws']['redshift']['user'] %>
+    redshift_password <%= node['td_agent']['aws']['redshift']['password'] %>
+    redshift_tablename errors
+    file_type json
+    buffer_queue_limit <%= node['td_agent']['buffer_queue_limit'] %>
+    buffer_chunk_limit <%= node['td_agent']['buffer_chunk_limit'] %>
+    flush_interval <%= node['td_agent']['flush_interval'] %>
+    flush_at_shutdown <%= node['td_agent']['flush_at_shutdown'] %>
+    utc
+</match>
+
+<match **.redshift.warning>
+    @type redshift
+    aws_key_id <%= node['td_agent']['aws']['api_access_key'] %>
+    aws_sec_key <%= node['td_agent']['aws']['api_secret_key'] %>
+    s3_bucket <%= node['td_agent']['aws']['s3']['bucket'] %>
+    s3_endpoint <%= node['td_agent']['aws']['s3']['endpoint'] %>
+    path redshift
+    timestamp_key_format "%Y/%m/%d/%H/%Y%m%d%H_warnings_#{Socket.gethostname}"
+    redshift_host <%= node['td_agent']['aws']['redshift']['host'] %>
+    redshift_port <%= node['td_agent']['aws']['redshift']['port'] %>
+    redshift_dbname <%= node['td_agent']['aws']['redshift']['database'] %>
+    redshift_user <%= node['td_agent']['aws']['redshift']['user'] %>
+    redshift_password <%= node['td_agent']['aws']['redshift']['password'] %>
+    redshift_tablename warnings
+    file_type json
+    buffer_queue_limit <%= node['td_agent']['buffer_queue_limit'] %>
+    buffer_chunk_limit <%= node['td_agent']['buffer_chunk_limit'] %>
+    flush_interval <%= node['td_agent']['flush_interval'] %>
+    flush_at_shutdown <%= node['td_agent']['flush_at_shutdown'] %>
+    utc
+</match>
+
+<match **.redshift.event>
+    @type redshift
+    aws_key_id <%= node['td_agent']['aws']['api_access_key'] %>
+    aws_sec_key <%= node['td_agent']['aws']['api_secret_key'] %>
+    s3_bucket <%= node['td_agent']['aws']['s3']['bucket'] %>
+    s3_endpoint <%= node['td_agent']['aws']['s3']['endpoint'] %>
+    path redshift
+    timestamp_key_format "%Y/%m/%d/%H/%Y%m%d%H_events_#{Socket.gethostname}"
+    redshift_host <%= node['td_agent']['aws']['redshift']['host'] %>
+    redshift_port <%= node['td_agent']['aws']['redshift']['port'] %>
+    redshift_dbname <%= node['td_agent']['aws']['redshift']['database'] %>
+    redshift_user <%= node['td_agent']['aws']['redshift']['user'] %>
+    redshift_password <%= node['td_agent']['aws']['redshift']['password'] %>
+    redshift_tablename events
+    file_type json
+    buffer_queue_limit <%= node['td_agent']['buffer_queue_limit'] %>
+    buffer_chunk_limit <%= node['td_agent']['buffer_chunk_limit'] %>
+    flush_interval <%= node['td_agent']['flush_interval'] %>
+    flush_at_shutdown <%= node['td_agent']['flush_at_shutdown'] %>
+    utc
+</match>
