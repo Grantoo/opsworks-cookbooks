@@ -30,50 +30,6 @@
 
 
 #-------------------------------------------------------------------------------
-# Grep Filter
-#
-# Filters records based on the values of specified keys. Key values are matched
-# using a specified regex pattern.
-#
-# Each pattern used for the inclusion of a record must be written under a
-# <regexp> tag. For example:
-#
-#     <regexp>
-#         key hostname
-#         pattern ^allow\.this-site\.com$
-#     </regexp>
-#
-# passes through all records with a hostname key value matching the pattern.
-#
-# Patterns for the exclusion of a record must be written under an <exclude> tag.
-# For example:
-#
-#     <exclude>
-#         key hostname
-#         pattern ^block\.this-site\.com$
-#     </exclude>
-#
-# drops all records with a hostname key value matching the pattern.
-#
-#-------------------------------------------------------------------------------
-<filter *>
-    @type grep
-    <exclude>
-        key gameId
-        pattern ^53bdb8283158733fb201b096$|^51f7ec7194e77627cb00057b$
-    </exclude>
-</filter>
-
-<filter **.redshift.event>
-    @type grep
-    <regexp>
-        key eventName
-        pattern "^analytics loaded$|^app run$|^active user$|^converting user$|^harvesting user$|^launch$|^launch with result$|^match started$|^match ended$|^match expired$|^round started$|^round ended$|^sdk ready$|^eventeligible$|^activityparticipation$|^activityprogress$|^activitycompletion$|^eventjoin$|^ruleachievement$"
-    </regexp>
-</filter>
-
-
-#-------------------------------------------------------------------------------
 # Tag Rewrite Output Filter
 #
 # Rewrites the record tag given a field value regex match which then re-emits
