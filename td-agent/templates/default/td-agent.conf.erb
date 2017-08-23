@@ -30,6 +30,44 @@
 
 
 #-------------------------------------------------------------------------------
+# Grep Filter
+#
+# Filters records based on the values of specified keys. Key values are matched
+# using a specified regex pattern.
+#
+# Each pattern used for the inclusion of a record must be written under a
+# <regexp> tag. For example:
+#
+#     <regexp>
+#         key hostname
+#         pattern ^allow\.this-site\.com$
+#     </regexp>
+#
+# passes through all records with a hostname key value matching the pattern.
+#
+# Patterns for the exclusion of a record must be written under an <exclude> tag.
+# For example:
+#
+#     <exclude>
+#         key hostname
+#         pattern ^block\.this-site\.com$
+#     </exclude>
+#
+# drops all records with a hostname key value matching the pattern.
+#
+#-------------------------------------------------------------------------------
+<filter unfiltered.*.redshift.{error,warning,event}>
+    @type grep
+    exclude1 gameId ^53bdb8283158733fb201b096$|^51f7ec7194e77627cb00057b$
+</filter>
+
+<filter unfiltered.*.redshift.event>
+    @type grep
+    regexp1 eventName ^analytics loaded$|^app run$|^active user$|^converting user$|^harvesting user$|^launch$|^launch with result$|^match started$|^match ended$|^match expired$|^round started$|^round ended$|^sdk ready$|^eventeligible$|^activityparticipation$|^activityprogress$|^activitycompletion$|^eventjoin$|^ruleachievement$
+</filter>
+
+
+# ------------------------------------------------------------------------------
 # Tag Rewrite Output Filter
 #
 # Rewrites the record tag given a field value regex match which then re-emits
@@ -55,6 +93,10 @@
 #
 #         Capitalizes the first letter of each backreference in a match
 #
+#     remove_tag_prefix
+#
+#         Removes the specified prefix from the ${tag} or __TAG__ placeholders.
+#
 #     hostname_command
 #
 #         Overrides the command use to retrieve the hostname that is used for the
@@ -70,10 +112,16 @@
     </store>
     <store>
         @type rewrite_tag_filter
-        rewriterule1 eventName ^errors$ ${tag}.redshift.error
-        rewriterule2 eventName ^warnings$ ${tag}.redshift.warning
-        rewriterule3 eventName .+ ${tag}.redshift.event
+        rewriterule1 eventName ^errors$ unfiltered.${tag}.redshift.error
+        rewriterule2 eventName ^warnings$ unfiltered.${tag}.redshift.warning
+        rewriterule3 eventName .+ unfiltered.${tag}.redshift.event
     </store>
+</match>
+
+<match unfiltered.*.redshift.{error,warning,event}>
+    @type rewrite_tag_filter
+    rewriterule1 eventName .+ ${tag}
+    remove_tag_prefix unfiltered
 </match>
 
 
@@ -286,7 +334,7 @@
 #         seconds.
 #
 #-------------------------------------------------------------------------------
-<match **.s3.event>
+<match *.s3.event>
     @type s3
     aws_key_id <%= node['td_agent']['aws']['api_access_key'] %>
     aws_sec_key <%= node['td_agent']['aws']['api_secret_key'] %>
@@ -342,7 +390,7 @@
 #         exclusive with the remove_keys field.
 #
 #-------------------------------------------------------------------------------
-<filter **.redshift.error>
+<filter *.redshift.error>
     @type record_modifier
     <record>
         error_name ${record['errorName']}
@@ -352,7 +400,7 @@
     remove_keys errorName,errorMessage,errorData
 </filter>
 
-<filter **.redshift.warning>
+<filter *.redshift.warning>
     @type record_modifier
     <record>
         warning_name ${record['warningName']}
@@ -362,7 +410,7 @@
     remove_keys warningName,warningMessage,warningData
 </filter>
 
-<filter **.redshift.{error,warning,event}>
+<filter *.redshift.{error,warning,event}>
     @type record_modifier
     <record>
         timestamp ${record['eventTime']}
@@ -451,7 +499,7 @@
 #         other keys will be kept.
 #
 #-------------------------------------------------------------------------------
-<filter **.redshift.{error,warning,event}>
+<filter *.redshift.{error,warning,event}>
     @type record_transformer
     renew_record
     enable_ruby
@@ -686,7 +734,7 @@
 #
 #
 #-------------------------------------------------------------------------------
-<match **.redshift.error>
+<match *.redshift.error>
     @type redshift
     aws_key_id <%= node['td_agent']['aws']['api_access_key'] %>
     aws_sec_key <%= node['td_agent']['aws']['api_secret_key'] %>
@@ -708,7 +756,7 @@
     utc
 </match>
 
-<match **.redshift.warning>
+<match *.redshift.warning>
     @type redshift
     aws_key_id <%= node['td_agent']['aws']['api_access_key'] %>
     aws_sec_key <%= node['td_agent']['aws']['api_secret_key'] %>
@@ -730,7 +778,7 @@
     utc
 </match>
 
-<match **.redshift.event>
+<match *.redshift.event>
     @type redshift
     aws_key_id <%= node['td_agent']['aws']['api_access_key'] %>
     aws_sec_key <%= node['td_agent']['aws']['api_secret_key'] %>
