@@ -16,7 +16,7 @@ DEPENDENCIES
     revision: ca251cf57eb09973f272be538b3c85110fdadac9
   td-agent
     git: https://github.com/markslemko/chef-td-agent.git
-    revision: 58e01ecb7f518ee7448100d6e06a5eccff57bc5b
+    revision: d7c835343469010f0f92a91a1677f5062950fc99
 
 GRAPH
   7-zip (1.0.2)
