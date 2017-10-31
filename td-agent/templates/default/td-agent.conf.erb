@@ -412,6 +412,7 @@
 
 <filter *.redshift.{error,warning,event}>
     @type record_modifier
+    char_encoding utf-8
     <record>
         timestamp ${record['eventTime']}
         event_name ${record['eventName']}
