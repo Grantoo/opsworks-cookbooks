@@ -415,6 +415,11 @@
     <record>
         timestamp ${record['eventTime']}
         event_name ${record['eventName']}
+        event_key ${record['eventKey']}
+
+        # event data is not passed through as of 2017-10-3
+        event_data ${record['eventData']}
+
         game_identifier ${record['gameId']}
         game_name ${record['gameName']}
         user_analytics_identifier ${record['userAnalyticsId']}
