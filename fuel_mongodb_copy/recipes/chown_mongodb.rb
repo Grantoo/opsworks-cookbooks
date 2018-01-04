@@ -26,10 +26,16 @@ directory '/mnt/mongodb/secrets' do
   action :create
 end
 
-file '/mnt/mongodb/secrets/keyfile' do
-  content 'fill'
-  owner 'mongodb'
-  group 'mongodb'
-  mode '0600'
-  action :create_if_missing
+if  !node[:opsworks][:instance].nil? && !node[:opsworks][:instance][:layers].nil? && !node[:mongodb][:layers].nil?
+  node[:mongodb][:layers].each do |layer|
+    if node[:opsworks][:instance][:layers].include?(layer[:shortname])
+      file '/mnt/mongodb/secrets/keyfile' do
+        content layer[:key]
+        owner 'mongodb'
+        group 'mongodb'
+        mode '0600'
+        action :create_if_missing
+      end
+    end
+  end
 end

@@ -1,24 +1,19 @@
 
-template File.join("etc", "mongod.conf") do
-  mode 0744
-  source "mongod.conf.erb"
-  variables(
-      :port => node[:mongodb][:config][:port],
-      :bind_ip => node[:mongodb][:config][:bindIp],
-      :repl_set => node[:mongodb][:config][:replSet],
-      :dbpath => node[:mongodb][:config][:dbpath],
-  )
-end
-
-template File.join("etc", "mongod.user.conf") do
-  mode 0744
-  source "mongod.conf.erb"
-  variables(
-      :port => node[:mongodb][:config][:userPort],
-      :bind_ip => node[:mongodb][:config][:bindIp],
-      :repl_set => node[:mongodb][:config][:userReplSet],
-      :dbpath => node[:mongodb][:config][:dbpath],
-  )
+if  !node[:opsworks][:instance].nil? && !node[:opsworks][:instance][:layers].nil? && !node[:mongodb][:layers].nil?
+  node[:mongodb][:layers].each do |layer|
+    if node[:opsworks][:instance][:layers].include?(layer[:shortname])
+      template File.join("etc", "mongod.conf") do
+        mode 0744
+        source "mongod.conf.erb"
+        variables(
+            :port => layer[:port],
+            :bind_ip => layer[:bindIp],
+            :repl_set => layer[:replSet],
+            :dbpath => layer[:dbpath],
+        )
+      end
+    end
+  end
 end
 
 file '/mnt/mongodb/readme' do
